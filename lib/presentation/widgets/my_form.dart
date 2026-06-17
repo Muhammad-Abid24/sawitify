@@ -1,0 +1,246 @@
+import 'dart:ui';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class MyForm extends StatefulWidget {
+  final String hintText;
+  final TextEditingController controller;
+  final bool obscureText;
+  final IconData? prefixIcon;
+  final FocusNode? focusNode;
+  final TextCapitalization capitalize;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+
+  const MyForm({
+    super.key,
+    required this.hintText,
+    required this.controller,
+    this.obscureText = false,
+    this.prefixIcon,
+    this.focusNode,
+    required this.capitalize,
+    this.keyboardType,
+    this.inputFormatters,
+  });
+
+  @override
+  State<MyForm> createState() => _MyFormState();
+}
+
+class _MyFormState extends State<MyForm> {
+  bool _showClearIcon = false;
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = widget.controller;
+    _checkText();
+    _controller.addListener(_checkText);
+  }
+
+  @override
+  void didUpdateWidget(MyForm oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      _controller.removeListener(_checkText);
+      _controller = widget.controller;
+      _checkText();
+      _controller.addListener(_checkText);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_checkText);
+    super.dispose();
+  }
+
+  void _checkText() {
+    setState(() {
+      _showClearIcon = _controller.text.isNotEmpty;
+    });
+  }
+
+  void _clearText() {
+    _controller.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 56,
+      margin: const EdgeInsets.symmetric(
+        horizontal: 20,
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+
+            /// BACKDROP BLUR
+            BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: 24,
+                sigmaY: 24,
+              ),
+              child: const SizedBox(),
+            ),
+
+            /// GLASS LAYER
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(28),
+
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+
+                    Colors.white.withOpacity(.22),
+
+                    Colors.white.withOpacity(.10),
+                  ],
+                ),
+
+                border: Border.all(
+                  color: Colors.white.withOpacity(.25),
+                  width: 0.8,
+                ),
+
+                boxShadow: [
+
+                  /// shadow luar
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.12),
+                    blurRadius: 20,
+                    offset: const Offset(
+                      0,
+                      8,
+                    ),
+                  ),
+
+                  /// glow putih
+                  BoxShadow(
+                    color: Colors.white.withOpacity(.08),
+                    blurRadius: 12,
+                    spreadRadius: -2,
+                  ),
+                ],
+              ),
+            ),
+
+            /// TOP HIGHLIGHT
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 0,
+              child: IgnorePointer(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(28),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+
+                        Colors.white.withOpacity(.28),
+
+                        Colors.transparent,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            /// TEXT FIELD
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 18,
+              ),
+              child: Row(
+                children: [
+
+                  /// SEARCH ICON
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 6,
+                      right: 14,
+                    ),
+                    child: Icon(
+                      widget.prefixIcon,
+                      size: 28,
+                      color: Colors.white.withOpacity(.9),
+                    ),
+                  ),
+
+                  /// TEXT INPUT
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      obscureText: widget.obscureText,
+                      textCapitalization: widget.capitalize,
+                      keyboardType: widget.keyboardType,
+                      inputFormatters: widget.inputFormatters,
+
+                      textAlignVertical:
+                      TextAlignVertical.center,
+
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        height: 1,
+                      ),
+
+                      cursorColor: Colors.white,
+
+                      decoration: InputDecoration(
+                        isDense: true,
+
+                        border: InputBorder.none,
+
+                        contentPadding: const EdgeInsets.only(
+                          right: 16,
+                        ),
+
+                        hintText: widget.hintText,
+
+                        hintStyle: TextStyle(
+                          color: Colors.white.withOpacity(.65),
+                          fontSize: 16,
+                        ),
+
+                        suffixIcon: _showClearIcon
+                            ? Padding(
+                          padding: const EdgeInsets.only(
+                            right: 6,
+                          ),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                            onPressed: _clearText,
+                          ),
+                        )
+                            : null,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
