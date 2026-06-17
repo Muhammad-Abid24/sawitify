@@ -4,12 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../core/storage/session_manager.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/app_info.dart';
 import '../widgets/button_login.dart';
 import '../widgets/my_button.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'main_navigation_page.dart';
 
@@ -38,22 +38,8 @@ class _IntroScreenState extends State<IntroScreen> {
   }
 
   Future<void> _initializeGoogleSignIn() async {
-    await _googleSignIn.initialize(
-      serverClientId:
-      dotenv.env['CLIENT_ID_FB'],
-    );
+    await _googleSignIn.initialize();
   }
-
-  // Future<void> _saveFirstTimePreference() async {
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     await prefs.setBool('isFirstTime', false);
-  //   } catch (e) {
-  //     if (kDebugMode) {
-  //       print('Error saving preference: $e');
-  //     }
-  //   }
-  // }
 
   Future<void> _loadVersion() async {
     final version = await AppInfo.getVersion();
@@ -159,25 +145,19 @@ class _IntroScreenState extends State<IntroScreen> {
     try {
 
       final GoogleSignInAccount googleUser =
-      await _googleSignIn.authenticate(
-        scopeHint: [
-          'email',
-        ],
-      );
+      await _googleSignIn.authenticate();
 
       final GoogleSignInAuthentication googleAuth =
           googleUser.authentication;
-
-      debugPrint('ID Token : ${googleAuth.idToken}');
 
       final credential = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential =
-      await _auth.signInWithCredential(credential);
-
-      debugPrint('Credential : $userCredential');
+      final userCredential =
+      await _auth.signInWithCredential(
+        credential,
+      );
 
 
       final User? user = userCredential.user;
@@ -228,6 +208,88 @@ class _IntroScreenState extends State<IntroScreen> {
     }
   }
 
+  Future<void> signInWithApple(BuildContext context) async {
+    try {
+
+      final appleCredential =
+      await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      final oauthCredential =
+      OAuthProvider('apple.com').credential(
+        idToken: appleCredential.identityToken,
+        accessToken: appleCredential.authorizationCode,
+      );
+
+      final userCredential =
+      await _auth.signInWithCredential(
+        oauthCredential,
+      );
+
+      final user = userCredential.user;
+
+      final firstName =
+          appleCredential.givenName ?? '';
+
+      final lastName =
+          appleCredential.familyName ?? '';
+
+      final displayName =
+      '$firstName $lastName'.trim();
+
+      uid = user?.uid ?? '';
+
+      username = displayName.isNotEmpty
+          ? displayName
+          : (user?.displayName ?? '');
+
+      email = user?.email ??
+          appleCredential.email ??
+          '';
+
+      photo = user?.photoURL ?? '';
+
+      debugPrint('UID   : $uid');
+      debugPrint('Nama  : $username');
+      debugPrint('Email : $email');
+
+      await SessionManager.setDataUserLogin(
+        userId: uid,
+        userName: username,
+        email: email,
+        photoUrl: photo,
+      );
+
+      if (!context.mounted) return;
+
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+          const MainNavigationPage(),
+        ),
+            (_) => false,
+      );
+
+    } catch (e) {
+
+      debugPrint(
+        'Apple Sign In Error: $e',
+      );
+
+      if (context.mounted) {
+        Navigator.of(
+          context,
+          rootNavigator: true,
+        ).maybePop();
+      }
+    }
+  }
+
 
   Future<void> _saveFirstTimePreference() async {
     try {
@@ -248,7 +310,18 @@ class _IntroScreenState extends State<IntroScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 10),
+
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Text(
+                'Mulai login menggunakan Google',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20
+                ),
+              ),
+            ),
 
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -272,35 +345,39 @@ class _IntroScreenState extends State<IntroScreen> {
             ),
             const SizedBox(height: 20),
 
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              child: SocialLoginButton(
-                text: 'Masuk dengan Apple',
-                logo: Image.asset(
-                  'assets/image/ic_apple.png',
-                  width: 40,
-                  height: 40,
-                ),
-                onPressed: () {
-                  // Apple Sign In
-                },
-              )
-            ),
-            const SizedBox(height: 15),
+            // Container(
+            //   margin: EdgeInsets.symmetric(horizontal: 20),
+            //   child: SocialLoginButton(
+            //     text: 'Masuk dengan Apple',
+            //     logo: Image.asset(
+            //       'assets/image/ic_apple.png',
+            //       width: 40,
+            //       height: 40,
+            //     ),
+            //       onPressed: () async {
+            //         Navigator.pop(bottomSheetContext);
+            //
+            //         await Future.delayed(
+            //           const Duration(milliseconds: 200),
+            //         );
+            //
+            //         await signInWithApple(parentContext);
+            //       }
+            //   )
+            // ),
 
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Text(
                 versionApp,
                 style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.normal,
-                    color: Colors.black
+                    color: Colors.white
                 ),
               ),
             ),
 
-            const SizedBox(height: 30),
           ],
         ),
       ),
