@@ -18,14 +18,21 @@ class ShimmerPlaylist extends StatelessWidget {
         children: [
 
           ListTile(
+            dense: true,
+
+            visualDensity: const VisualDensity(
+              vertical: -1,
+            ),
+
+            minVerticalPadding: 0,
             contentPadding: EdgeInsets.symmetric(
               horizontal: isTablet ? 32 : 20,
               vertical: 4,
             ),
 
             leading: Container(
-              width: isTablet ? 70 : 50,
-              height: isTablet ? 70 : 50,
+              width: isTablet ? 70 : 45,
+              height: isTablet ? 70 : 45,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius:

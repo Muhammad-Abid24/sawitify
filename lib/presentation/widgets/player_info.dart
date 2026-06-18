@@ -189,7 +189,7 @@ class _MusicInfoSectionState
         ),
 
         const SizedBox(
-          height: 40,
+          height: 20,
         ),
 
         const PlaybackControls(),

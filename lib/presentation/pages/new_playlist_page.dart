@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,6 +12,7 @@ import '../../data/model/playlist_model.dart';
 import '../../data/repository/player_repository.dart';
 import '../../data/repository/playlist_repository.dart';
 import '../states/new_music_service.dart';
+import '../widgets/circle_button.dart';
 import '../widgets/mini_player.dart';
 import '../widgets/my_form.dart';
 
@@ -34,7 +36,7 @@ class NewPlaylistPage extends StatefulWidget {
 }
 
 class _PlaylistPageState
-    extends State<NewPlaylistPage> {
+    extends State<NewPlaylistPage> with SingleTickerProviderStateMixin {
 
   bool _isLoading = true;
   String? errorMessage;
@@ -79,6 +81,43 @@ class _PlaylistPageState
 
     searchController.addListener(_onSearchChanged);
 
+    _playController = AnimationController(
+      vsync: this,
+      duration: const Duration(
+        milliseconds: 180,
+      ),
+    );
+
+    _playScale = Tween<double>(
+      begin: 1,
+      end: 0.92,
+    ).animate(
+      CurvedAnimation(
+        parent: _playController,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeOutBack,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    searchController.removeListener(_onSearchChanged);
+    searchController.dispose();
+    _playController.dispose();
+    super.dispose();
+  }
+
+  late final AnimationController _playController;
+  late final Animation<double> _playScale;
+  Future<void> _animatePlayButton() async {
+    await _playController.forward();
+
+    if (!mounted) return;
+
+    await _playController.reverse();
+
+    _playPlaylistFromStart();
   }
 
   void _onSearchChanged() {
@@ -107,11 +146,39 @@ class _PlaylistPageState
     });
   }
 
-  @override
-  void dispose() {
-    searchController.removeListener(_onSearchChanged);
-    searchController.dispose();
-    super.dispose();
+  Future<void> _playPlaylistFromStart() async {
+    final tracks = serviceTracks;
+
+    if (tracks.isEmpty) {
+      return;
+    }
+
+    final service = NewMusicService.instance;
+
+    await service.setPlaylist(
+      playlist: tracks,
+      startIndex: 0,
+    );
+
+    await service.playTrack(0);
+  }
+
+  Future<void> _playPlaylistShuffle() async {
+    final tracks = serviceTracks;
+
+    if (tracks.isEmpty) {
+      return;
+    }
+
+    final startIndex = Random().nextInt(tracks.length);
+    final service = NewMusicService.instance;
+
+    await service.setPlaylist(
+      playlist: tracks,
+      startIndex: startIndex,
+    );
+
+    await service.playTrack(startIndex);
   }
 
   Future<void> loadPlaylist() async {
@@ -360,7 +427,7 @@ class _PlaylistPageState
                           ),
                         ),
 
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 2),
                       ],
                     ),
                   ),
@@ -393,48 +460,51 @@ class _PlaylistPageState
                             ),
                             child: Column(
                               children: [
-                                const SizedBox(height: 110),
+                                const SizedBox(height: 10),
 
                                 /// PLAY ROW
-                                Row(
-                                  children: [
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 40),
+                              child: Row(
+                                children: [
 
-                                    const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
+                                  const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
 
-                                    const SizedBox(width: 16),
+                                  const SizedBox(width: 20),
 
-                                    Expanded(
-                                      child: SizedBox(
-                                        height: isTablet ? 64 : 56,
-                                        child: ElevatedButton(
-                                          onPressed: null,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.primary,
-                                            shape: const StadiumBorder(),
-                                          ),
-                                          child: const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: isTablet ? 64 : 50,
+                                      child: ElevatedButton(
+                                        onPressed: null,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.primary,
+                                          shape: const StadiumBorder(),
+                                        ),
+                                        child: const SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ),
                                     ),
+                                  ),
 
-                                    const SizedBox(width: 16),
+                                  const SizedBox(width: 20),
 
-                                    const CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  ],
-                                ),
+                                  const CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              ),
+                            ),
 
                                 const SizedBox(height: 20),
 
@@ -502,55 +572,74 @@ class _PlaylistPageState
                         ),
                         child: Column(
                           children: [
-                            const SizedBox(height: 100),
+                            const SizedBox(height: 10),
 
                             /// PLAY ROW
-                            Row(
-                              children: [
+                            Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 30),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
 
-                                _circleAction(
-                                  icon: Icons.shuffle,
-                                ),
 
-                                const SizedBox(width: 16),
+                                  CircleButton(
+                                    icon: Icons.shuffle,
+                                    onTap: _playPlaylistShuffle,
+                                  ),
 
-                                Expanded(
-                                  child: SizedBox(
-                                    height: isTablet ? 64 : 56,
-                                    child: ElevatedButton(
-                                      onPressed: () {},
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppColors.primary,
-                                        shape: const StadiumBorder(),
-                                      ),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            Icons.play_arrow,
-                                            color: Colors.white,
-                                            size: 25,
+                                  const SizedBox(width: 20),
+
+                                  Expanded(
+                                    child: SizedBox(
+                                      height: isTablet ? 64 : 50,
+
+                                      child: ScaleTransition(
+                                        scale: _playScale,
+
+                                        child: ElevatedButton(
+                                          onPressed: _animatePlayButton,
+
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.primary,
+
+                                            shape: const StadiumBorder(),
                                           ),
-                                          SizedBox(width: 8),
-                                          Text(
-                                            "Play",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 17
-                                            ),
+
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+
+                                            children: [
+                                              Icon(
+                                                Icons.play_arrow,
+                                                color: Colors.white,
+                                                size: 25,
+                                              ),
+
+                                              SizedBox(width: 5),
+
+                                              Text(
+                                                "Play",
+
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 17,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
 
-                                const SizedBox(width: 16),
+                                  const SizedBox(width: 20),
 
-                                _circleAction(
-                                  icon: Icons.add,
-                                ),
-                              ],
+                                  CircleButton(
+                                    icon: Icons.add,
+                                  ),
+                                ],
+                              ),
+
                             ),
 
                             const SizedBox(height: 23),
@@ -607,21 +696,21 @@ class _PlaylistPageState
             child: Row(
               children: [
 
-                _glassButton(
+                CircleButton(
                   icon: Icons.arrow_back_ios_new,
                   onTap: () => Navigator.pop(context),
                 ),
 
                 const Spacer(),
 
-                _glassButton(
+                CircleButton(
                   icon: Icons.share_outlined,
                   onTap: () => Navigator.pop(context),
                 ),
 
                 const SizedBox(width: 12),
 
-                _glassButton(
+                CircleButton(
                   icon: Icons.more_horiz,
                   onTap: () => Navigator.pop(context),
                 ),
@@ -632,7 +721,7 @@ class _PlaylistPageState
           const Positioned(
             left: 0,
             right: 0,
-            bottom: 110,
+            bottom: 105,
             child: MiniPlayer(),
           ),
 
@@ -653,7 +742,7 @@ class _PlaylistPageState
   }
 
 
-  static Widget _glassButton({
+  /*static Widget _glassButton({
     required IconData icon,
     required VoidCallback onTap,
   }) {
@@ -679,24 +768,28 @@ class _PlaylistPageState
         ),
       ),
     );
-  }
+  }*/
 
-  static Widget _circleAction({
+  /*static Widget _circleAction({
     required IconData icon,
+    VoidCallback? onTap,
   }) {
-    return Container(
-      width: 56,
-      height: 56,
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(.15),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(
-        icon,
-        color: Colors.white,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(.15),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          icon,
+          color: Colors.white,
+        ),
       ),
     );
-  }
+  }*/
 }
 
 class _SongTile extends StatelessWidget {
@@ -831,25 +924,32 @@ class _SongTile extends StatelessWidget {
 
 
             child: ListTile(
+              dense: true,
+
+              visualDensity: const VisualDensity(
+                vertical: -1,
+              ),
+
+              minVerticalPadding: 0,
               contentPadding:
               EdgeInsets.symmetric(
                 horizontal:
-                isTablet ? 32 : 12,
+                isTablet ? 32 : 7,
                 vertical: 1,
               ),
 
               leading: ClipRRect(
                 borderRadius:
-                BorderRadius.circular(5),
+                BorderRadius.circular(7),
 
                 child:
                 CachedNetworkImage(
                   imageUrl:
                   track.thumbnail,
                   width:
-                  isTablet ? 70 : 50,
+                  isTablet ? 70 : 45,
                   height:
-                  isTablet ? 70 : 50,
+                  isTablet ? 70 : 45,
                   fit: BoxFit.cover,
                 ),
               ),
