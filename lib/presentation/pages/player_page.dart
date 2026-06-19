@@ -25,15 +25,17 @@ class _PlayerPage extends State<PlayerPage>
 
       builder: (_, __) {
 
+        final music =
+            NewMusicService.instance;
+
         final track =
-            NewMusicService
-                .instance
-                .currentTrack;
+            music.currentTrack;
 
         final duration =
-            NewMusicService
-                .instance
-                .trackDuration;
+            music.trackDuration;
+
+        final playlistName =
+            music.playlistName;
 
         final durationText =
             "${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
@@ -84,6 +86,9 @@ class _PlayerPage extends State<PlayerPage>
 
               videoId:
               track.videoId,
+
+              playlistName:
+              playlistName
             );
           },
         );

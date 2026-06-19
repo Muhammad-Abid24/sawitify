@@ -13,6 +13,7 @@ class PlayerContent extends StatelessWidget {
     required this.duration,
     required this.videoId,
     required this.controller,
+    required this.playlistName,
   });
 
   final String imageUrl;
@@ -20,6 +21,7 @@ class PlayerContent extends StatelessWidget {
   final String artist;
   final String duration;
   final String videoId;
+  final String playlistName;
   final ScrollController controller;
 
   @override
@@ -102,7 +104,9 @@ class PlayerContent extends StatelessWidget {
               child: MusicInfoSection(
                 title: title,
                 artist: artist,
-                videoId: videoId),
+                videoId: videoId,
+                  playlistName: playlistName
+              ),
             ),
           ),
         ],

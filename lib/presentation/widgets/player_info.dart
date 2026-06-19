@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
@@ -5,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 import 'package:sawitify/core/utils/audio_output.dart';
 import 'package:sawitify/presentation/widgets/player_playback.dart';
+import 'package:sawitify/presentation/widgets/rectangle_button.dart';
 
 import '../../core/theme/app_theme.dart';
+import '../../data/model/track_model.dart';
 import '../states/new_music_service.dart';
 import 'auto_marque.dart';
 import 'circle_button.dart';
@@ -17,11 +20,13 @@ class MusicInfoSection extends StatefulWidget {
     required this.title,
     required this.artist,
     required this.videoId,
+    required this.playlistName,
   });
 
   final String title;
   final String artist;
   final String videoId;
+  final String playlistName;
 
   @override
   State<MusicInfoSection> createState() =>
@@ -293,6 +298,7 @@ class _MusicInfoSectionState
 
             CircleButton(
               icon: Icons.playlist_play,
+              onTap: () => _showListQueue(context, widget.playlistName),
             ),
           ],
         )
@@ -702,13 +708,7 @@ class _MusicInfoSectionState
 }
 
 
-void _showAndroidBottomSheet(
-
-    BuildContext context,
-
-    List<dynamic> devices,
-
-    ) {
+void _showAndroidBottomSheet(BuildContext context, List<dynamic> devices) {
 
   final device =
       devices.first;
@@ -834,6 +834,714 @@ void _showAndroidBottomSheet(
             ],
           ),
         ),
+      );
+    },
+  );
+}
+
+void _showListQueue(
+    BuildContext context,
+    String playlistName,
+    ) {
+
+  final music =
+      NewMusicService.instance;
+
+  showModalBottomSheet(
+
+    context: context,
+
+    isScrollControlled: true,
+
+    backgroundColor:
+    Colors.transparent,
+
+    builder: (_) {
+
+      return DraggableScrollableSheet(
+
+        initialChildSize: 0.65,
+
+        minChildSize: 0.65,
+
+        maxChildSize: 0.85,
+
+        expand: false,
+
+        builder: (
+
+            context,
+
+            scrollController,
+
+            ) {
+
+          return Container(
+
+            decoration:
+            const BoxDecoration(
+
+              color: Colors.black,
+
+              borderRadius:
+
+              BorderRadius.vertical(
+
+                top:
+
+                Radius.circular(
+                  28,
+                ),
+              ),
+            ),
+
+            child: SafeArea(
+
+              top: false,
+
+              child:
+
+              AnimatedBuilder(
+
+                animation: music,
+
+                builder: (
+
+                    _,
+
+                    __,
+
+                    ) {
+
+                  final queue =
+
+                      music
+                          .queueTracks;
+
+                  if (
+
+                  queue.isEmpty
+
+                  ) {
+
+                    return const SizedBox();
+                  }
+
+                  return Column(
+
+                    children: [
+
+                      const SizedBox(
+                        height: 10,
+                      ),
+
+                      Container(
+
+                        width: 48,
+
+                        height: 5,
+
+                        decoration:
+
+                        BoxDecoration(
+
+                          color:
+
+                          AppColors.primary,
+
+                          borderRadius:
+
+                          BorderRadius.circular(
+                            999,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(
+                        height: 16,
+                      ),
+
+                      const Text(
+
+                        'Continue Playing',
+
+                        style: TextStyle(
+
+                          fontSize: 17,
+
+                          fontWeight:
+
+                          FontWeight.bold,
+                        ),
+                      ),
+
+                      Text(
+
+                        'From $playlistName',
+
+                        style:
+
+                        const TextStyle(
+
+                          fontSize: 14,
+
+                          color:
+
+                          Colors.white70,
+                        ),
+                      ),
+
+                      const SizedBox(height: 15),
+
+                      Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceEvenly,
+                        children: [
+                          RectangleButton(
+                            icon: Icons.repeat,
+                            width: 75,
+                            height: 40,
+                          ),
+
+                          RectangleButton(
+                            icon: Icons.timer,
+                            width: 75,
+                            height: 40,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(
+                        height: 16,
+                      ),
+
+                      // =====================
+                      // NOW PLAYING
+                      // =====================
+
+                      Material(
+
+                        color:
+
+                        AppColors.background1,
+
+                        child:
+
+                        _buildQueueTile(
+
+                          context:
+
+                          context,
+
+                          music:
+
+                          music,
+
+                          track:
+
+                          queue.first,
+
+                          index:
+
+                          0,
+
+                          playing:
+
+                          true,
+                        ),
+                      ),
+
+                      const Divider(
+
+                        height: 1,
+
+                        color:
+
+                        Colors.white10,
+                      ),
+
+                      // =====================
+                      // LIST QUEUE
+                      // =====================
+
+                      Expanded(
+
+                        child:
+
+                        ReorderableListView.builder(
+
+                          scrollController:
+
+                          scrollController,
+
+                          buildDefaultDragHandles:
+
+                          false,
+
+                          itemCount:
+
+                          queue.length - 1,
+
+                          onReorder:
+
+                              (
+
+                              oldIndex,
+
+                              newIndex,
+
+                              ) {
+
+                            music.moveQueueItem(
+
+                              oldIndex + 1,
+
+                              newIndex + 1,
+                            );
+                          },
+
+                          itemBuilder:
+
+                              (
+
+                              context,
+
+                              index,
+
+                              ) {
+
+                            final realIndex =
+
+                                index + 1;
+
+                            final track =
+
+                            queue[
+                            realIndex
+                            ];
+
+                            return Material(
+
+                              key:
+
+                              ValueKey(
+                                track.videoId,
+                              ),
+
+                              color:
+
+                              Colors.transparent,
+
+                              child:
+
+                              _buildQueueTile(
+
+                                context:
+
+                                context,
+
+                                music:
+
+                                music,
+
+                                track:
+
+                                track,
+
+                                index:
+
+                                realIndex,
+
+                                playing:
+
+                                false,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _buildQueueTile({
+
+  required BuildContext context,
+
+  required NewMusicService music,
+
+  required TrackModel track,
+
+  required int index,
+
+  required bool playing,
+
+}) {
+
+  return ListTile(
+
+    contentPadding:
+
+    const EdgeInsets.symmetric(
+
+      horizontal: 20,
+
+      vertical: 4,
+    ),
+
+    leading:
+
+    SizedBox(
+
+      width: 45,
+
+      height: 45,
+
+      child: Stack(
+
+        alignment:
+
+        Alignment.center,
+
+        children: [
+
+          ClipRRect(
+
+            borderRadius:
+
+            BorderRadius.circular(
+              7,
+            ),
+
+            child:
+
+            Image.network(
+
+              track.thumbnail,
+
+              width: 45,
+
+              height: 45,
+
+              fit:
+
+              BoxFit.cover,
+
+              errorBuilder:
+
+                  (
+
+                  _,
+
+                  __,
+
+                  ___,
+
+                  ) {
+
+                return Container(
+
+                  width: 45,
+
+                  height: 45,
+
+                  decoration:
+
+                  BoxDecoration(
+
+                    color:
+
+                    Colors.white10,
+
+                    borderRadius:
+
+                    BorderRadius.circular(
+                      7,
+                    ),
+                  ),
+
+                  child:
+
+                  const Icon(
+
+                    Icons.album_rounded,
+
+                    color:
+
+                    Colors.white54,
+                  ),
+                );
+              },
+            ),
+          ),
+
+          if (playing)
+
+            Container(
+
+              width: 45,
+
+              height: 45,
+
+              decoration:
+
+              BoxDecoration(
+
+                color:
+
+                AppColors.background1.withAlpha(
+                  75,
+                ),
+
+                borderRadius:
+
+                BorderRadius.circular(
+                  7,
+                ),
+              ),
+
+              child:
+
+              const Center(
+
+                child:
+
+                Icon(
+
+                  Icons.graphic_eq,
+
+                  size: 26,
+
+                  color:
+
+                  AppColors.primary,
+                ),
+              ),
+            ),
+        ],
+      ),
+    ),
+
+    title:
+
+    Column(
+
+      crossAxisAlignment:
+
+      CrossAxisAlignment.start,
+
+      children: [
+
+        if (playing)
+
+          const Text(
+
+            'Now Playing',
+
+            style: TextStyle(
+
+              fontSize: 12,
+
+              fontWeight:
+
+              FontWeight.w600,
+
+              color:
+
+              AppColors.primary,
+            ),
+          ),
+
+        playing
+
+            ? autoMarquee(
+
+          text:
+
+          track.title,
+
+          height:
+
+          20,
+
+          style:
+
+          const TextStyle(
+
+            color:
+
+            Colors.white,
+
+            fontWeight:
+
+            FontWeight.bold,
+
+            fontSize:
+            16,
+          ),
+        )
+
+            : Text(
+
+          track.title,
+
+          maxLines:
+
+          1,
+
+          overflow:
+
+          TextOverflow.ellipsis,
+
+          style:
+
+          const TextStyle(
+
+            color:
+
+            Colors.white,
+
+            fontWeight:
+
+            FontWeight.w500,
+
+            fontSize:
+            16,
+          ),
+        ),
+
+        playing
+
+            ? autoMarquee(
+
+          text:
+
+          track.artist,
+
+          height:
+
+          17,
+
+          style:
+
+          const TextStyle(
+
+            color:
+
+            Colors.white70,
+
+            fontSize:
+            13,
+          ),
+        )
+
+            : Text(
+
+          track.artist,
+
+          maxLines:
+
+          1,
+
+          overflow:
+
+          TextOverflow.ellipsis,
+
+          style:
+
+          const TextStyle(
+
+            color:
+
+            Colors.white70,
+
+            fontSize:
+            13,
+          ),
+        ),
+      ],
+    ),
+
+    trailing:
+
+    index == 0
+
+        ? CircleButton(
+
+      icon:
+
+      music.isPlaying
+
+          ? Icons.pause
+
+          : Icons.play_arrow,
+
+      width: 40,
+
+      height: 40,
+
+      color:
+
+      AppColors.primary,
+
+      onTap:
+
+      music.togglePlayPause,
+    )
+
+        : ReorderableDragStartListener(
+
+      index:
+
+      index - 1,
+
+      child:
+
+      const Icon(
+
+        Icons.drag_indicator,
+      ),
+    ),
+
+    onTap: () async {
+
+      if (
+
+      index == 0
+
+      ) {
+
+        await music
+            .togglePlayPause();
+
+        return;
+      }
+
+      if (
+
+      !context.mounted
+
+      ) {
+
+        return;
+      }
+
+      Navigator.pop(
+        context,
+      );
+
+      await music
+          .playQueue(
+        index,
       );
     },
   );

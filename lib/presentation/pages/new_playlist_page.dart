@@ -864,6 +864,7 @@ class _SongTile extends StatelessWidget {
                   .setPlaylist(
                 playlist: tracks,
                 startIndex: originalIndex,
+                playlistName: pageState.widget.title,
               );
 
               await NewMusicService.instance

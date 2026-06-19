@@ -34,9 +34,29 @@ class NewMusicService extends ChangeNotifier {
   StreamSubscription<PlayerState>? _playerStateSub;
   StreamSubscription<Duration>? _positionSub;
 
+  // shuffle playlist
   List<int> _shuffleQueue = [];
-
   int _shufflePosition = 0;
+
+  // list queue
+  final List<int> _queue = [];
+  int _queuePosition = 0;
+  List<int> get queue =>
+      List.unmodifiable(_queue);
+
+  int get queuePosition =>
+      _queuePosition;
+
+  List<TrackModel> get queueTracks {
+
+    return _queue
+
+        .map(
+          (i) => _playlist[i],
+    )
+
+        .toList();
+  }
 
   bool _loadingTrack = false;
   String? _lastError;
@@ -62,6 +82,9 @@ class NewMusicService extends ChangeNotifier {
   Duration get trackDuration => _trackDuration ?? Duration.zero;
 
   bool get hasAudioSource => player.audioSource != null;
+
+  String _playlistName = '';
+  String get playlistName => _playlistName;
 
   Future<void> initialize() async {
     if (_initialized) {
@@ -101,7 +124,8 @@ class NewMusicService extends ChangeNotifier {
     if (_shuffleEnabled) {
       _buildShuffleQueue();
     }
-
+    _buildQueue();
+    _moveCurrentTrackToTop();
     notifyListeners();
   }
 
@@ -162,8 +186,11 @@ class NewMusicService extends ChangeNotifier {
   Future<void> setPlaylist({
     required List<TrackModel> playlist,
     required int startIndex,
+    String? playlistName,
   }) async {
     _playlist = List.from(playlist);
+
+    _playlistName = playlistName ?? 'Unknown Playlist';
 
     if (_playlist.isEmpty) {
       _currentIndex = 0;
@@ -176,6 +203,9 @@ class NewMusicService extends ChangeNotifier {
     if (_shuffleEnabled) {
       _buildShuffleQueue();
     }
+
+    _buildQueue();
+    _moveCurrentTrackToTop();
 
     notifyListeners();
   }
@@ -253,6 +283,8 @@ class NewMusicService extends ChangeNotifier {
 
     try {
       _currentIndex = index;
+
+      _moveCurrentTrackToTop();
 
       await _loadTrack(_playlist[_currentIndex]);
 
@@ -357,28 +389,44 @@ class NewMusicService extends ChangeNotifier {
   }
 
   Future<void> next() async {
+
     if (_playlist.isEmpty) {
+
       return;
     }
 
-    if (_shuffleEnabled) {
-      _shufflePosition++;
+    // hapus lagu yg selesai
 
-      if (_shufflePosition >= _shuffleQueue.length) {
-        _buildShuffleQueue();
-        _shufflePosition = 0;
-      }
+    _removeCurrentTrackFromQueue();
 
-      _currentIndex = _shuffleQueue[_shufflePosition];
-    } else {
-      _currentIndex++;
+    // queue habis
 
-      if (_currentIndex >= _playlist.length) {
-        _currentIndex = 0;
-      }
+    if (_queue.isEmpty) {
+
+      _rebuildQueueIfEmpty();
     }
 
-    await NewMusicStorage.saveCurrentIndex(_currentIndex);
+    // lagu berikutnya
+
+    _currentIndex =
+
+        _queue.first;
+
+    _queuePosition = 0;
+
+    if (_shuffleEnabled) {
+
+      _shufflePosition =
+
+          _shuffleQueue.indexOf(
+            _currentIndex,
+          );
+    }
+
+    await NewMusicStorage
+        .saveCurrentIndex(
+      _currentIndex,
+    );
 
     await _saveCurrentTrack();
 
@@ -388,27 +436,45 @@ class NewMusicService extends ChangeNotifier {
   }
 
   Future<void> previous() async {
+
     if (_playlist.isEmpty) {
+
       return;
     }
 
-    if (_shuffleEnabled) {
-      _shufflePosition--;
+    _queuePosition--;
 
-      if (_shufflePosition < 0) {
-        _shufflePosition = _shuffleQueue.length - 1;
-      }
+    if (
 
-      _currentIndex = _shuffleQueue[_shufflePosition];
-    } else {
-      _currentIndex--;
+    _queuePosition < 0
 
-      if (_currentIndex < 0) {
-        _currentIndex = _playlist.length - 1;
-      }
+    ) {
+
+      _queuePosition =
+
+          _queue.length - 1;
     }
 
-    await NewMusicStorage.saveCurrentIndex(_currentIndex);
+    _currentIndex =
+    _queue[
+    _queuePosition
+    ];
+
+    _moveCurrentTrackToTop();
+
+    if (_shuffleEnabled) {
+
+      _shufflePosition =
+
+          _shuffleQueue.indexOf(
+            _currentIndex,
+          );
+    }
+
+    await NewMusicStorage
+        .saveCurrentIndex(
+      _currentIndex,
+    );
 
     await _saveCurrentTrack();
 
@@ -417,14 +483,31 @@ class NewMusicService extends ChangeNotifier {
     await playCurrentTrack();
   }
 
-  Future<void> setShuffle(bool enabled) async {
+  Future<void> setShuffle(
+
+      bool enabled,
+
+      ) async {
+
     _shuffleEnabled = enabled;
 
-    await NewMusicStorage.saveShuffle(enabled);
+    await NewMusicStorage
+        .saveShuffle(
+      enabled,
+    );
 
     if (enabled) {
+
       _buildShuffleQueue();
+
+    } else {
+
+      _shuffleQueue.clear();
+
+      _shufflePosition = 0;
     }
+
+    _buildQueue();
 
     notifyListeners();
   }
@@ -480,6 +563,7 @@ class NewMusicService extends ChangeNotifier {
   }
 
   Future<void> clearPlaylist() async {
+
     _playlist.clear();
 
     _currentIndex = 0;
@@ -487,6 +571,10 @@ class NewMusicService extends ChangeNotifier {
     _shuffleQueue.clear();
 
     _shufflePosition = 0;
+
+    _queue.clear();
+
+    _queuePosition = 0;
 
     _trackDuration = null;
 
@@ -524,6 +612,264 @@ class NewMusicService extends ChangeNotifier {
       ),
 
       duration: _trackDuration,
+    );
+  }
+
+  bool isCurrentQueue(
+      int index,
+      ) {
+
+    return index ==
+        _queuePosition;
+  }
+  Future<void> playQueue(
+      int queueIndex,
+      ) async {
+
+    if (
+
+    queueIndex < 0 ||
+
+        queueIndex >=
+            _queue.length
+
+    ) {
+
+      return;
+    }
+
+    // lagu yang sedang diputar
+    // jangan diputar ulang
+
+    if (
+
+    queueIndex == 0
+
+    ) {
+
+      return;
+    }
+
+    _currentIndex =
+
+    _queue[
+    queueIndex
+    ];
+
+    // pindahkan ke urutan pertama
+
+    _queue.remove(
+      _currentIndex,
+    );
+
+    _queue.insert(
+      0,
+      _currentIndex,
+    );
+
+    _queuePosition = 0;
+
+    if (_shuffleEnabled) {
+
+      _shufflePosition =
+
+          _shuffleQueue.indexOf(
+            _currentIndex,
+          );
+    }
+
+    await NewMusicStorage
+        .saveCurrentIndex(
+      _currentIndex,
+    );
+
+    await _saveCurrentTrack();
+
+    notifyListeners();
+
+    await playCurrentTrack();
+  }
+
+  Future<void> moveQueueItem(
+
+      int oldIndex,
+
+      int newIndex,
+
+      ) async {
+
+    if (_queue.length <= 1) {
+
+      return;
+    }
+
+    // index 0 (current track)
+    // tidak boleh dipindah
+
+    if (oldIndex == 0) {
+
+      return;
+    }
+
+    // tidak boleh dipindah
+    // ke posisi 0
+
+    if (newIndex == 0) {
+
+      return;
+    }
+
+    if (oldIndex < newIndex) {
+
+      newIndex--;
+    }
+
+    final item =
+
+    _queue.removeAt(
+      oldIndex,
+    );
+
+    _queue.insert(
+
+      newIndex,
+
+      item,
+    );
+
+    _queuePosition =
+
+        _queue.indexOf(
+          _currentIndex,
+        );
+
+    notifyListeners();
+  }
+
+  void _buildQueue() {
+
+    _queue.clear();
+
+    if (_playlist.isEmpty) {
+
+      return;
+    }
+
+    if (_shuffleEnabled) {
+
+      _queue.addAll(
+        _shuffleQueue,
+      );
+
+    } else {
+
+      _queue.addAll(
+
+        List.generate(
+
+          _playlist.length,
+
+              (i) => i,
+        ),
+      );
+    }
+
+    _queuePosition =
+
+        _queue.indexOf(
+          _currentIndex,
+        );
+
+    if (
+
+    _queuePosition < 0
+
+    ) {
+
+      _queuePosition = 0;
+    }
+  }
+
+  void _moveCurrentTrackToTop() {
+
+    if (_queue.isEmpty) {
+
+      return;
+    }
+
+    final currentPos =
+
+    _queue.indexOf(
+      _currentIndex,
+    );
+
+    if (
+
+    currentPos <= 0
+
+    ) {
+
+      _queuePosition = 0;
+
+      return;
+    }
+
+    final current =
+
+    _queue.removeAt(
+      currentPos,
+    );
+
+    _queue.insert(
+
+      0,
+
+      current,
+    );
+
+    _queuePosition = 0;
+  }
+
+  void _rebuildQueueIfEmpty() {
+
+    if (_queue.isNotEmpty) {
+
+      return;
+    }
+
+    if (_shuffleEnabled) {
+
+      _buildShuffleQueue();
+    }
+
+    _buildQueue();
+
+    _moveCurrentTrackToTop();
+  }
+
+  void _removeCurrentTrackFromQueue() {
+
+    if (_queue.isEmpty) {
+
+      return;
+    }
+
+    if (
+
+    _queue.first ==
+
+        _currentIndex
+
+    ) {
+
+      _queue.removeAt(0);
+
+      return;
+    }
+
+    _queue.remove(
+
+      _currentIndex,
     );
   }
 

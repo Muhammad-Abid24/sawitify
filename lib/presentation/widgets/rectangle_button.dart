@@ -3,29 +3,29 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
-class CircleButton extends StatefulWidget {
+class RectangleButton extends StatefulWidget {
   final IconData icon;
   final VoidCallback? onTap;
   final double? width;
   final double? height;
   final Color? color;
 
-  const CircleButton({
+  const RectangleButton({
     super.key,
     required this.icon,
     this.onTap,
-    this.width = 50,
-    this.height = 50,
+    this.width = 100,
+    this.height = 40,
     this.color = Colors.white,
   });
 
   @override
-  State<CircleButton> createState() =>
-      _CircleButtonState();
+  State<RectangleButton> createState() =>
+      _RectangleButtonState();
 }
 
-class _CircleButtonState
-    extends State<CircleButton>
+class _RectangleButtonState
+    extends State<RectangleButton>
     with SingleTickerProviderStateMixin {
 
   late final AnimationController _controller;
@@ -79,7 +79,8 @@ class _CircleButtonState
       child: GestureDetector(
         onTap: _handleTap,
 
-        child: ClipOval(
+        child: ClipRRect(
+          borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
           child: BackdropFilter(
             filter: ImageFilter.blur(
               sigmaX: 20,
