@@ -5,6 +5,7 @@ plugins {
     // END: FlutterFire Configuration
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -51,5 +52,17 @@ dependencies {
 
     implementation(
         "androidx.mediarouter:mediarouter:1.7.0"
+    )
+
+    implementation(
+
+        "androidx.fragment:fragment-ktx:1.8.9"
+
+    )
+
+    implementation(
+
+        "androidx.media:media:1.7.0"
+
     )
 }

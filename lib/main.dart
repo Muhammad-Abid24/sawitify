@@ -17,8 +17,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  /// HANYA iOS
-  if (Platform.isIOS) {
+  if (Platform.isAndroid || Platform.isIOS) {
     await JustAudioBackground.init(
       androidNotificationChannelId:
       'com.sawitify.audio',

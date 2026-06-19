@@ -1,25 +1,17 @@
 package com.sawitify.sawitify
 
-import android.content.Context
-
 import android.content.Intent
 
-import android.media.AudioDeviceInfo
-
-import android.media.AudioManager
-
 import android.provider.Settings
-
-import io.flutter.embedding.android.FlutterActivity
 
 import io.flutter.embedding.engine.FlutterEngine
 
 import io.flutter.plugin.common.MethodChannel
 
 import androidx.mediarouter.media.MediaRouter
-import androidx.mediarouter.media.MediaRouter.RouteInfo
+import com.ryanheise.audioservice.AudioServiceActivity
 
-class MainActivity : FlutterActivity() {
+class MainActivity : AudioServiceActivity() {
 
     companion object {
 
