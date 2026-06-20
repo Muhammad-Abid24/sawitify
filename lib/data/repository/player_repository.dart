@@ -1,39 +1,25 @@
-
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../core/network/request/request_player.dart';
 import '../../core/network/api_client.dart';
 import '../model/player_model.dart';
 
 class PlayerRepository {
-
   final ApiClient apiClient;
 
-  PlayerRepository(
-      this.apiClient,
-      );
+  PlayerRepository(this.apiClient);
 
-  Future<PlayerModel> getPlayer(
-      String videoId,
-      ) async {
+  Future<PlayerModel> getPlayer(String videoId) async {
+    if (kDebugMode) {
+      print("videoId = '$videoId'");
+    }
+    debugPrint('REQUEST VIDEO_ID = $videoId');
 
-    print("videoId = '$videoId'");
-    debugPrint(
-      'REQUEST VIDEO_ID = $videoId',
-    );
-
-
-    final response =
-    await apiClient.apiPlayer.player(
-      PlayerRequest(
-        videoId: videoId,
-      ).toJson(),
+    final response = await apiClient.apiPlayer.player(
+      PlayerRequest(videoId: videoId).toJson(),
       false,
     );
 
-    return PlayerModel.fromAudioJson(
-      response,
-    );
-
+    return PlayerModel.fromAudioJson(response);
   }
 }

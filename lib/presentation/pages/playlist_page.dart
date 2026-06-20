@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sawitify/presentation/pages/now_player_page.dart';
-import 'package:sawitify/presentation/pages/player_page.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/theme/app_theme.dart';
@@ -29,13 +28,10 @@ class PlaylistPage extends StatefulWidget {
   });
 
   @override
-  State<PlaylistPage> createState() =>
-      _PlaylistPageState();
+  State<PlaylistPage> createState() => _PlaylistPageState();
 }
 
-class _PlaylistPageState
-    extends State<PlaylistPage> {
-
+class _PlaylistPageState extends State<PlaylistPage> {
   bool isLoading = true;
 
   String? errorMessage;
@@ -54,31 +50,19 @@ class _PlaylistPageState
         statusBarBrightness: Brightness.light,
       ),
     );
-    playerRepository = PlayerRepository(
-      ApiClient(),
-    );
+    playerRepository = PlayerRepository(ApiClient());
     loadPlaylist();
   }
 
   Future<void> loadPlaylist() async {
     try {
-      final repository =
-      PlaylistRepository(
-        ApiClient().dioBrowse,
-      );
+      final repository = PlaylistRepository(ApiClient().dioBrowse);
 
-      final response =
-      await repository.getPlaylistDetail(
-        widget.browseId,
-      );
+      final response = await repository.getPlaylistDetail(widget.browseId);
 
-      debugPrint(
-        'PLAYLIST TITLE = ${response.title}',
-      );
+      debugPrint('PLAYLIST TITLE = ${response.title}');
 
-      debugPrint(
-        'TRACK COUNT = ${response.tracks.length}',
-      );
+      debugPrint('TRACK COUNT = ${response.tracks.length}');
 
       if (!mounted) return;
 
@@ -93,9 +77,7 @@ class _PlaylistPageState
         debugPrint('🔄 Starting preload for ${videoIds.length} tracks...');
       }
     } catch (e) {
-      debugPrint(
-        'PLAYLIST ERROR: $e',
-      );
+      debugPrint('PLAYLIST ERROR: $e');
 
       if (!mounted) return;
 
@@ -106,36 +88,24 @@ class _PlaylistPageState
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     if (isLoading) {
       return const Scaffold(
-        backgroundColor:
-        AppColors.background1,
-        body: Center(
-          child:
-          CircularProgressIndicator(),
-        ),
+        backgroundColor: AppColors.background1,
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (errorMessage != null) {
       return Scaffold(
-        backgroundColor:
-        AppColors.background1,
-        body: Center(
-          child: Text(
-            errorMessage!,
-          ),
-        ),
+        backgroundColor: AppColors.background1,
+        body: Center(child: Text(errorMessage!)),
       );
     }
 
     return Scaffold(
-      backgroundColor:
-      AppColors.background1,
+      backgroundColor: AppColors.background1,
 
       appBar: Toolbar(
         bgColor: AppColors.primary,
@@ -148,31 +118,17 @@ class _PlaylistPageState
       body: Stack(
         children: [
           ListView(
-            padding:
-            const EdgeInsets.only(
-              bottom: 160,
-            ),
+            padding: const EdgeInsets.only(bottom: 160),
             children: [
               _buildHeader(),
 
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
 
-              ...playlist!.tracks.map(
-                    (track) =>
-                    _buildTrack(track),
-              ),
+              ...playlist!.tracks.map((track) => _buildTrack(track)),
             ],
           ),
 
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 95,
-            child: MiniPlayer(),
-          ),
-
+          const Positioned(left: 0, right: 0, bottom: 95, child: MiniPlayer()),
         ],
       ),
     );
@@ -180,15 +136,11 @@ class _PlaylistPageState
 
   Widget _buildHeader() {
     return Padding(
-      padding:
-      const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
           ClipRRect(
-            borderRadius:
-            BorderRadius.circular(
-              12,
-            ),
+            borderRadius: BorderRadius.circular(12),
             child: Image.network(
               widget.thumbnail,
               width: 150,
@@ -197,69 +149,46 @@ class _PlaylistPageState
             ),
           ),
 
-          const SizedBox(
-            height: 16,
-          ),
+          const SizedBox(height: 16),
 
           Text(
             widget.title,
-            textAlign:
-            TextAlign.center,
-            style:
-            const TextStyle(
+            textAlign: TextAlign.center,
+            style: const TextStyle(
               fontSize: 24,
-              fontWeight:
-              FontWeight.bold,
+              fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
           ),
 
-          const SizedBox(
-            height: 8,
-          ),
+          const SizedBox(height: 8),
 
           Text(
             widget.subTitle,
-            textAlign:
-            TextAlign.center,
-            style:
-            const TextStyle(
-              color: Colors.grey,
-            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(color: Colors.grey),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTrack(
-      TrackModel track,
-      ) {
+  Widget _buildTrack(TrackModel track) {
     return InkWell(
       onTap: () async {
-
         try {
+          final playerData = await playerRepository.getPlayer(track.videoId);
 
-          final playerData =
-          await playerRepository.getPlayer(
-            track.videoId,
-          );
-
-          debugPrint(
-            'STREAM URL = ${playerData.streamUrl}',
-          );
+          debugPrint('STREAM URL = ${playerData.streamUrl}');
 
           //----------------------------------
           // Cari posisi lagu di playlist
           //----------------------------------
-          final trackIndex =
-          playlist!.tracks.indexWhere(
-                (e) => e.videoId == track.videoId,
+          final trackIndex = playlist!.tracks.indexWhere(
+            (e) => e.videoId == track.videoId,
           );
 
-          debugPrint(
-            'TRACK INDEX = $trackIndex',
-          );
+          debugPrint('TRACK INDEX = $trackIndex');
 
           //----------------------------------
           // Simpan ke NewMusicPlayerService
@@ -284,7 +213,8 @@ class _PlaylistPageState
                 videoId: track.videoId,
                 fromMiniPlayer: false,
               ),
-            ));
+            ),
+          );
 
           // showModalBottomSheet(
           //   context: context,
@@ -295,79 +225,43 @@ class _PlaylistPageState
           //     return PlayerPage();
           //   },
           //);
-
         } catch (e) {
-
-          debugPrint(
-            'PLAYER ERROR = $e',
-          );
+          debugPrint('PLAYER ERROR = $e');
 
           if (!mounted) return;
 
-          String errorMessage =
-              'Gagal memutar lagu';
+          String errorMessage = 'Gagal memutar lagu';
 
-          if (e
-              .toString()
-              .contains(
-            'age-restricted',
-          )) {
-
-            errorMessage =
-            'Lagu ini dibatasi oleh usia.';
-
-          } else if (e
-              .toString()
-              .contains(
-            'region-locked',
-          )) {
-
-            errorMessage =
-            'Lagu tidak tersedia di wilayah Anda.';
-
-          } else if (e
-              .toString()
-              .contains(
-            'playable',
-          )) {
-
-            errorMessage =
-            'Lagu tidak dapat diputar.';
+          if (e.toString().contains('age-restricted')) {
+            errorMessage = 'Lagu ini dibatasi oleh usia.';
+          } else if (e.toString().contains('region-locked')) {
+            errorMessage = 'Lagu tidak tersedia di wilayah Anda.';
+          } else if (e.toString().contains('playable')) {
+            errorMessage = 'Lagu tidak dapat diputar.';
           }
 
-          ScaffoldMessenger.of(context)
-              .showSnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                errorMessage,
-              ),
-              backgroundColor:
-              Colors.red.shade400,
+              content: Text(errorMessage),
+              backgroundColor: Colors.red.shade400,
             ),
           );
         }
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 8,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
-          crossAxisAlignment:
-          CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
             //----------------------------------
             // THUMBNAIL
             //----------------------------------
-
             YoutubeThumbnail(
               videoId: track.videoId,
               width: 60,
               height: 60,
               fit: BoxFit.cover,
-              borderRadius:
-              BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(8),
             ),
 
             const SizedBox(width: 16),
@@ -379,34 +273,25 @@ class _PlaylistPageState
               child: SizedBox(
                 height: 60,
                 child: Column(
-                  mainAxisAlignment:
-                  MainAxisAlignment.center,
-                  crossAxisAlignment:
-                  CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
                     autoMarquee(
                       text: track.title,
                       height: 22,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
-                        fontWeight:
-                        FontWeight.w500,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
 
-                    const SizedBox(
-                      height: 4,
-                    ),
+                    const SizedBox(height: 4),
 
                     autoMarquee(
                       text: track.artist,
                       height: 18,
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(color: Colors.grey, fontSize: 14),
                     ),
                   ],
                 ),
@@ -423,10 +308,7 @@ class _PlaylistPageState
               child: Text(
                 track.duration,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 13,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 13),
               ),
             ),
 
@@ -437,86 +319,62 @@ class _PlaylistPageState
             //----------------------------------
             IconButton(
               padding: EdgeInsets.zero,
-              constraints:
-              const BoxConstraints(),
+              constraints: const BoxConstraints(),
               icon: const Icon(
                 Icons.more_vert,
                 color: Colors.white70,
                 size: 22,
               ),
               onPressed: () {
-                debugPrint(
-                  'MENU: ${track.title}',
-                );
+                debugPrint('MENU: ${track.title}');
 
                 showModalBottomSheet(
                   context: context,
-                  backgroundColor:
-                  AppColors.background2,
+                  backgroundColor: AppColors.background2,
                   builder: (_) {
                     return SafeArea(
                       child: Column(
-                        mainAxisSize:
-                        MainAxisSize.min,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-
                           ListTile(
                             leading: const Icon(
                               Icons.play_arrow,
-                              color:
-                              Colors.white,
+                              color: Colors.white,
                             ),
                             title: const Text(
                               'Putar',
-                              style: TextStyle(
-                                color:
-                                Colors.white,
-                              ),
+                              style: TextStyle(color: Colors.white),
                             ),
                             onTap: () {
-                              Navigator.pop(
-                                context,
-                              );
+                              Navigator.pop(context);
                             },
                           ),
 
                           ListTile(
                             leading: const Icon(
                               Icons.favorite_border,
-                              color:
-                              Colors.white,
+                              color: Colors.white,
                             ),
                             title: const Text(
                               'Tambahkan ke Favorit',
-                              style: TextStyle(
-                                color:
-                                Colors.white,
-                              ),
+                              style: TextStyle(color: Colors.white),
                             ),
                             onTap: () {
-                              Navigator.pop(
-                                context,
-                              );
+                              Navigator.pop(context);
                             },
                           ),
 
                           ListTile(
                             leading: const Icon(
                               Icons.playlist_add,
-                              color:
-                              Colors.white,
+                              color: Colors.white,
                             ),
                             title: const Text(
                               'Tambahkan ke Playlist',
-                              style: TextStyle(
-                                color:
-                                Colors.white,
-                              ),
+                              style: TextStyle(color: Colors.white),
                             ),
                             onTap: () {
-                              Navigator.pop(
-                                context,
-                              );
+                              Navigator.pop(context);
                             },
                           ),
                         ],

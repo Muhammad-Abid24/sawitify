@@ -72,21 +72,15 @@ class _MyFormState extends State<MyForm> {
   Widget build(BuildContext context) {
     return Container(
       height: 56,
-      margin: const EdgeInsets.symmetric(
-        horizontal: 20,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: 20),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
         child: Stack(
           fit: StackFit.expand,
           children: [
-
             /// BACKDROP BLUR
             BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 24,
-                sigmaY: 24,
-              ),
+              filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
               child: const SizedBox(),
             ),
 
@@ -99,33 +93,28 @@ class _MyFormState extends State<MyForm> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
+                    Colors.white.withValues(alpha: .22),
 
-                    Colors.white.withOpacity(.22),
-
-                    Colors.white.withOpacity(.10),
+                    Colors.white.withValues(alpha: .10),
                   ],
                 ),
 
                 border: Border.all(
-                  color: Colors.white.withOpacity(.25),
+                  color: Colors.white.withValues(alpha: .25),
                   width: 0.8,
                 ),
 
                 boxShadow: [
-
                   /// shadow luar
                   BoxShadow(
-                    color: Colors.black.withOpacity(.12),
+                    color: Colors.black.withValues(alpha: .12),
                     blurRadius: 20,
-                    offset: const Offset(
-                      0,
-                      8,
-                    ),
+                    offset: const Offset(0, 8),
                   ),
 
                   /// glow putih
                   BoxShadow(
-                    color: Colors.white.withOpacity(.08),
+                    color: Colors.white.withValues(alpha: .08),
                     blurRadius: 12,
                     spreadRadius: -2,
                   ),
@@ -149,8 +138,7 @@ class _MyFormState extends State<MyForm> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-
-                        Colors.white.withOpacity(.28),
+                        Colors.white.withValues(alpha: .28),
 
                         Colors.transparent,
                       ],
@@ -162,22 +150,16 @@ class _MyFormState extends State<MyForm> {
 
             /// TEXT FIELD
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 18,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18),
               child: Row(
                 children: [
-
                   /// SEARCH ICON
                   Padding(
-                    padding: const EdgeInsets.only(
-                      left: 6,
-                      right: 14,
-                    ),
+                    padding: const EdgeInsets.only(left: 6, right: 14),
                     child: Icon(
                       widget.prefixIcon,
                       size: 28,
-                      color: Colors.white.withOpacity(.9),
+                      color: Colors.white.withValues(alpha: .9),
                     ),
                   ),
 
@@ -190,8 +172,7 @@ class _MyFormState extends State<MyForm> {
                       keyboardType: widget.keyboardType,
                       inputFormatters: widget.inputFormatters,
 
-                      textAlignVertical:
-                      TextAlignVertical.center,
+                      textAlignVertical: TextAlignVertical.center,
 
                       style: const TextStyle(
                         color: Colors.white,
@@ -207,37 +188,33 @@ class _MyFormState extends State<MyForm> {
 
                         border: InputBorder.none,
 
-                        contentPadding: const EdgeInsets.only(
-                          right: 16,
-                        ),
+                        contentPadding: const EdgeInsets.only(right: 16),
 
                         hintText: widget.hintText,
 
                         hintStyle: TextStyle(
-                          color: Colors.white.withOpacity(.65),
+                          color: Colors.white.withValues(alpha: .65),
                           fontSize: 16,
                         ),
 
                         suffixIcon: _showClearIcon
                             ? Padding(
-                          padding: const EdgeInsets.only(
-                            right: 6,
-                          ),
-                          child: IconButton(
-                            icon: const Icon(
-                              Icons.clear,
-                              color: Colors.white,
-                            ),
-                            onPressed: _clearText,
-                          ),
-                        )
+                                padding: const EdgeInsets.only(right: 6),
+                                child: IconButton(
+                                  icon: const Icon(
+                                    Icons.clear,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: _clearText,
+                                ),
+                              )
                             : null,
                       ),
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

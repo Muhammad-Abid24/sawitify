@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -18,11 +17,11 @@ import '../widgets/my_form.dart';
 
 class NewPlaylistPage extends StatefulWidget {
   const NewPlaylistPage({
-  super.key,
-  required this.browseId,
-  required this.title,
-  required this.subTitle,
-  required this.thumbnail,
+    super.key,
+    required this.browseId,
+    required this.title,
+    required this.subTitle,
+    required this.thumbnail,
   });
 
   final String browseId;
@@ -31,13 +30,11 @@ class NewPlaylistPage extends StatefulWidget {
   final String thumbnail;
 
   @override
-  State<NewPlaylistPage> createState() =>
-  _PlaylistPageState();
+  State<NewPlaylistPage> createState() => _PlaylistPageState();
 }
 
-class _PlaylistPageState
-    extends State<NewPlaylistPage> with SingleTickerProviderStateMixin {
-
+class _PlaylistPageState extends State<NewPlaylistPage>
+    with SingleTickerProviderStateMixin {
   bool _isLoading = true;
   String? errorMessage;
 
@@ -61,37 +58,24 @@ class _PlaylistPageState
     }).toList();
   }
 
-  int _getOriginalIndex(
-      TrackModel track,
-      ) {
-    return serviceTracks.indexWhere(
-          (e) =>
-      e.videoId ==
-          track.videoId,
-    );
+  int _getOriginalIndex(TrackModel track) {
+    return serviceTracks.indexWhere((e) => e.videoId == track.videoId);
   }
 
   @override
   void initState() {
     super.initState();
-    playerRepository = PlayerRepository(
-      ApiClient(),
-    );
+    playerRepository = PlayerRepository(ApiClient());
     loadPlaylist();
 
     searchController.addListener(_onSearchChanged);
 
     _playController = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 180,
-      ),
+      duration: const Duration(milliseconds: 180),
     );
 
-    _playScale = Tween<double>(
-      begin: 1,
-      end: 0.92,
-    ).animate(
+    _playScale = Tween<double>(begin: 1, end: 0.92).animate(
       CurvedAnimation(
         parent: _playController,
         curve: Curves.easeOut,
@@ -121,10 +105,7 @@ class _PlaylistPageState
   }
 
   void _onSearchChanged() {
-    final query =
-    searchController.text
-        .trim()
-        .toLowerCase();
+    final query = searchController.text.trim().toLowerCase();
 
     if (playlist == null) return;
 
@@ -134,15 +115,10 @@ class _PlaylistPageState
         return;
       }
 
-      _filteredTracks =
-          serviceTracks.where((track) {
-            return track.title
-                .toLowerCase()
-                .contains(query) ||
-                track.artist
-                    .toLowerCase()
-                    .contains(query);
-          }).toList();
+      _filteredTracks = serviceTracks.where((track) {
+        return track.title.toLowerCase().contains(query) ||
+            track.artist.toLowerCase().contains(query);
+      }).toList();
     });
   }
 
@@ -155,10 +131,7 @@ class _PlaylistPageState
 
     final service = NewMusicService.instance;
 
-    await service.setPlaylist(
-      playlist: tracks,
-      startIndex: 0,
-    );
+    await service.setPlaylist(playlist: tracks, startIndex: 0);
 
     await service.playTrack(0);
   }
@@ -173,10 +146,7 @@ class _PlaylistPageState
     final startIndex = Random().nextInt(tracks.length);
     final service = NewMusicService.instance;
 
-    await service.setPlaylist(
-      playlist: tracks,
-      startIndex: startIndex,
-    );
+    await service.setPlaylist(playlist: tracks, startIndex: startIndex);
 
     await service.playTrack(startIndex);
   }
@@ -190,23 +160,13 @@ class _PlaylistPageState
     }
 
     try {
-      final repository =
-      PlaylistRepository(
-        ApiClient().dioBrowse,
-      );
+      final repository = PlaylistRepository(ApiClient().dioBrowse);
 
-      final response =
-      await repository.getPlaylistDetail(
-        widget.browseId,
-      );
+      final response = await repository.getPlaylistDetail(widget.browseId);
 
-      debugPrint(
-        'PLAYLIST TITLE = ${response.title}',
-      );
+      debugPrint('PLAYLIST TITLE = ${response.title}');
 
-      debugPrint(
-        'TRACK COUNT = ${response.tracks.length}',
-      );
+      debugPrint('TRACK COUNT = ${response.tracks.length}');
 
       if (!mounted) return;
 
@@ -222,9 +182,7 @@ class _PlaylistPageState
         debugPrint('🔄 Starting preload for ${videoIds.length} tracks...');
       }
     } catch (e) {
-      debugPrint(
-        'PLAYLIST ERROR: $e',
-      );
+      debugPrint('PLAYLIST ERROR: $e');
 
       if (!mounted) return;
 
@@ -235,43 +193,27 @@ class _PlaylistPageState
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-
     final size = MediaQuery.sizeOf(context);
     final isTablet = size.width >= 700;
 
-    final hdThumbnail =
-    widget.thumbnail.replaceAll(
+    final hdThumbnail = widget.thumbnail.replaceAll(
       RegExp(r'=w\d+-h\d+.*'),
       '=w1000-h1000',
     );
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) async {
-
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
       try {
-        await precacheImage(
-          NetworkImage(hdThumbnail),
-          context,
-        );
+        await precacheImage(NetworkImage(hdThumbnail), context);
 
-        debugPrint(
-          '✅ HD Thumbnail Cached',
-        );
+        debugPrint('✅ HD Thumbnail Cached');
       } catch (e) {
-        debugPrint(
-          '❌ Thumbnail Cache Error: $e',
-        );
+        debugPrint('❌ Thumbnail Cache Error: $e');
       }
     });
-
-    final artworkHeight = isTablet
-        ? size.height * .42
-        : size.height * .38;
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -279,26 +221,16 @@ class _PlaylistPageState
       body: Stack(
         fit: StackFit.expand,
         children: [
-
           /// BACKGROUND ARTWORK
           Positioned.fill(
             child: CachedNetworkImage(
               imageUrl: hdThumbnail,
 
-              imageBuilder: (
-                  context,
-                  imageProvider,
-                  ) {
-                return Image(
-                  image: imageProvider,
-                  fit: BoxFit.cover,
-                );
+              imageBuilder: (context, imageProvider) {
+                return Image(image: imageProvider, fit: BoxFit.cover);
               },
 
-              placeholder: (
-                  context,
-                  url,
-                  ) {
+              placeholder: (context, url) {
                 return OverflowBox(
                   maxWidth: double.infinity,
                   maxHeight: double.infinity,
@@ -314,11 +246,7 @@ class _PlaylistPageState
                 );
               },
 
-              errorWidget: (
-                  context,
-                  url,
-                  error,
-                  ) {
+              errorWidget: (context, url, error) {
                 return OverflowBox(
                   maxWidth: double.infinity,
                   maxHeight: double.infinity,
@@ -343,16 +271,11 @@ class _PlaylistPageState
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  stops: const [
-                    0,
-                    .35,
-                    .65,
-                    1,
-                  ],
+                  stops: const [0, .35, .65, 1],
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(.15),
-                    Colors.black.withOpacity(.6),
+                    Colors.black.withValues(alpha: .15),
+                    Colors.black.withValues(alpha: .6),
                     Colors.black,
                   ],
                 ),
@@ -368,31 +291,25 @@ class _PlaylistPageState
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
-
                 /// AREA ARTWORK
-                SliverToBoxAdapter(
-                  child: SizedBox(
-                    height: size.height * .22,
-                  ),
-                ),
+                SliverToBoxAdapter(child: SizedBox(height: size.height * .22)),
 
                 /// TITLE
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: EdgeInsets.symmetric(
                       horizontal: isTablet ? 40 : 20,
-                      vertical: 50
+                      vertical: 50,
                     ),
                     child: Column(
                       children: [
-
                         Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 13,
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(.15),
+                            color: Colors.white.withValues(alpha: .15),
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
@@ -414,7 +331,7 @@ class _PlaylistPageState
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(.15),
+                            color: Colors.white.withValues(alpha: .15),
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
@@ -438,7 +355,6 @@ class _PlaylistPageState
                   SliverToBoxAdapter(
                     child: Column(
                       children: [
-
                         /// PLAY + SUBTITLE TETAP PAKAI GRADIENT
                         Container(
                           decoration: BoxDecoration(
@@ -465,46 +381,46 @@ class _PlaylistPageState
                                 /// PLAY ROW
                                 Padding(
                                   padding: EdgeInsets.symmetric(horizontal: 40),
-                              child: Row(
-                                children: [
+                                  child: Row(
+                                    children: [
+                                      const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
 
-                                  const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
-                                  ),
+                                      const SizedBox(width: 20),
 
-                                  const SizedBox(width: 20),
-
-                                  Expanded(
-                                    child: SizedBox(
-                                      height: isTablet ? 64 : 50,
-                                      child: ElevatedButton(
-                                        onPressed: null,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.primary,
-                                          shape: const StadiumBorder(),
-                                        ),
-                                        child: const SizedBox(
-                                          width: 24,
-                                          height: 24,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
+                                      Expanded(
+                                        child: SizedBox(
+                                          height: isTablet ? 64 : 50,
+                                          child: ElevatedButton(
+                                            onPressed: null,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppColors.primary,
+                                              shape: const StadiumBorder(),
+                                            ),
+                                            child: const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
 
-                                  const SizedBox(width: 20),
+                                      const SizedBox(width: 20),
 
-                                  const CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
+                                      const CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
+                                ),
 
                                 const SizedBox(height: 20),
 
@@ -514,7 +430,7 @@ class _PlaylistPageState
                                     vertical: 6,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(.15),
+                                    color: Colors.white.withValues(alpha: .15),
                                     borderRadius: BorderRadius.circular(100),
                                   ),
                                   child: Text(
@@ -538,14 +454,11 @@ class _PlaylistPageState
                           color: Colors.black,
                           child: Column(
                             children: [
-
                               const SizedBox(height: 12),
 
                               ...List.generate(
                                 11,
-                                    (_) => ShimmerPlaylist(
-                                  isTablet: isTablet,
-                                ),
+                                (_) => ShimmerPlaylist(isTablet: isTablet),
                               ),
 
                               const SizedBox(height: 20),
@@ -562,7 +475,152 @@ class _PlaylistPageState
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [ Colors.transparent, Colors.black12, Colors.black45, Colors.black45, Colors.black87, Colors.black87, Colors.black87, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black, Colors.black,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black12,
+                            Colors.black45,
+                            Colors.black45,
+                            Colors.black87,
+                            Colors.black87,
+                            Colors.black87,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
+                            Colors.black,
                           ],
                         ),
                       ),
@@ -576,12 +634,10 @@ class _PlaylistPageState
 
                             /// PLAY ROW
                             Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 30),
+                              padding: EdgeInsets.symmetric(horizontal: 30),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-
-
                                   CircleButton(
                                     icon: Icons.shuffle,
                                     onTap: _playPlaylistShuffle,
@@ -634,12 +690,9 @@ class _PlaylistPageState
 
                                   const SizedBox(width: 20),
 
-                                  CircleButton(
-                                    icon: Icons.add,
-                                  ),
+                                  CircleButton(icon: Icons.add),
                                 ],
                               ),
-
                             ),
 
                             const SizedBox(height: 23),
@@ -650,7 +703,7 @@ class _PlaylistPageState
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withOpacity(.15),
+                                color: Colors.white.withValues(alpha: .15),
                                 borderRadius: BorderRadius.circular(100),
                               ),
                               child: Text(
@@ -665,28 +718,25 @@ class _PlaylistPageState
 
                             const SizedBox(height: 20),
 
-                            ...List.generate(
-                              _filteredTracks.length,
-                                  (index) {
-                                final track = _filteredTracks[index];
+                            ...List.generate(_filteredTracks.length, (index) {
+                              final track = _filteredTracks[index];
 
-                                return _SongTile(
-                                  track: track,
-                                  index: index,
-                                  isTablet: isTablet,
-                                );
-                              },
-                            ),
+                              return _SongTile(
+                                track: track,
+                                index: index,
+                                isTablet: isTablet,
+                              );
+                            }),
 
                             const SizedBox(height: 190),
                           ],
                         ),
                       ),
                     ),
-                  ),              ],
+                  ),
+              ],
             ),
           ),
-
 
           /// TOP BAR OVERLAY
           Positioned(
@@ -695,7 +745,6 @@ class _PlaylistPageState
             right: 16,
             child: Row(
               children: [
-
                 CircleButton(
                   icon: Icons.arrow_back_ios_new,
                   onTap: () => Navigator.pop(context),
@@ -718,12 +767,7 @@ class _PlaylistPageState
             ),
           ),
 
-          const Positioned(
-            left: 0,
-            right: 0,
-            bottom: 105,
-            child: MiniPlayer(),
-          ),
+          const Positioned(left: 0, right: 0, bottom: 105, child: MiniPlayer()),
 
           Positioned(
             left: 0,
@@ -735,12 +779,11 @@ class _PlaylistPageState
               hintText: 'Artist and Songs in playlist',
               prefixIcon: Icons.search,
             ),
-          )
+          ),
         ],
       ),
     );
   }
-
 
   /*static Widget _glassButton({
     required IconData icon,
@@ -759,7 +802,7 @@ class _PlaylistPageState
           child: Container(
             width: 48,
             height: 48,
-            color: Colors.white.withOpacity(.12),
+            color: Colors.white.withValues(alpha: .12),
             child: Icon(
               icon,
               color: Colors.white,
@@ -780,7 +823,7 @@ class _PlaylistPageState
         width: 56,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(.15),
+          color: Colors.white.withValues(alpha: .15),
           shape: BoxShape.circle,
         ),
         child: Icon(
@@ -805,152 +848,89 @@ class _SongTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-
         Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           clipBehavior: Clip.antiAlias,
 
           child: InkWell(
-            borderRadius:
-            BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(12),
 
             onTap: () async {
+              try {
+                final pageState = context
+                    .findAncestorStateOfType<_PlaylistPageState>()!;
 
-            try {
-              final pageState =
-              context.findAncestorStateOfType<
-                  _PlaylistPageState>()!;
+                debugPrint('PAGE STATE = $pageState');
 
-              debugPrint(
-                'PAGE STATE = $pageState',
-              );
+                final tracks = pageState.serviceTracks;
 
-              final tracks =
-                  pageState.serviceTracks;
+                final originalIndex = pageState._getOriginalIndex(track);
 
-              final originalIndex =
-              pageState._getOriginalIndex(
-                track,
-              );
+                debugPrint('Tapped = ${track.title}');
 
-              debugPrint(
-                'Tapped = ${track.title}',
-              );
+                debugPrint('Tapped id = ${track.videoId}');
 
-              debugPrint(
-                'Tapped id = ${track.videoId}',
-              );
+                debugPrint('Original index = $originalIndex');
 
-              debugPrint(
-                'Original index = $originalIndex',
-              );
+                debugPrint('Track at index = ${tracks[originalIndex].title}');
 
-              debugPrint(
-                'Track at index = ${tracks[originalIndex].title}',
-              );
+                debugPrint('Video at index = ${tracks[originalIndex].videoId}');
 
-              debugPrint(
-                'Video at index = ${tracks[originalIndex].videoId}',
-              );
+                if (!context.mounted) return;
 
-              if (!context.mounted) return;
+                await NewMusicService.instance.setPlaylist(
+                  playlist: tracks,
+                  startIndex: originalIndex,
+                  playlistName: pageState.widget.title,
+                );
 
-              await NewMusicService.instance
-                  .setPlaylist(
-                playlist: tracks,
-                startIndex: originalIndex,
-                playlistName: pageState.widget.title,
-              );
+                await NewMusicService.instance.playTrack(originalIndex);
+              } catch (e) {
+                debugPrint('PLAYER ERROR = $e');
 
-              await NewMusicService.instance
-                  .playTrack(
-                originalIndex,
-              );
-            }catch (e) {
+                if (!context.mounted) return;
 
-              debugPrint(
-                'PLAYER ERROR = $e',
-              );
+                String errorMessage = 'Gagal memutar lagu';
 
-              if (!context.mounted) return;
+                if (e.toString().contains('age-restricted')) {
+                  errorMessage = 'Lagu ini dibatasi oleh usia.';
+                } else if (e.toString().contains('region-locked')) {
+                  errorMessage = 'Lagu tidak tersedia di wilayah Anda.';
+                } else if (e.toString().contains('playable')) {
+                  errorMessage = 'Lagu tidak dapat diputar.';
+                }
 
-              String errorMessage =
-                  'Gagal memutar lagu';
-
-              if (e
-                  .toString()
-                  .contains(
-                'age-restricted',
-              )) {
-
-                errorMessage =
-                'Lagu ini dibatasi oleh usia.';
-
-              } else if (e
-                  .toString()
-                  .contains(
-                'region-locked',
-              )) {
-
-                errorMessage =
-                'Lagu tidak tersedia di wilayah Anda.';
-
-              } else if (e
-                  .toString()
-                  .contains(
-                'playable',
-              )) {
-
-                errorMessage =
-                'Lagu tidak dapat diputar.';
-              }
-
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(
-                SnackBar(
-                  content: Text(
-                    errorMessage,
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(errorMessage),
+                    backgroundColor: Colors.red.shade400,
                   ),
-                  backgroundColor:
-                  Colors.red.shade400,
-                ),
-              );
-            }
+                );
+              }
             },
-
 
             child: ListTile(
               dense: true,
 
-              visualDensity: const VisualDensity(
-                vertical: -1,
-              ),
+              visualDensity: const VisualDensity(vertical: -1),
 
               minVerticalPadding: 0,
-              contentPadding:
-              EdgeInsets.symmetric(
-                horizontal:
-                isTablet ? 32 : 7,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: isTablet ? 32 : 7,
                 vertical: 1,
               ),
 
               leading: ClipRRect(
-                borderRadius:
-                BorderRadius.circular(7),
+                borderRadius: BorderRadius.circular(7),
 
-                child:
-                CachedNetworkImage(
-                  imageUrl:
-                  track.thumbnail,
-                  width:
-                  isTablet ? 70 : 45,
-                  height:
-                  isTablet ? 70 : 45,
+                child: CachedNetworkImage(
+                  imageUrl: track.thumbnail,
+                  width: isTablet ? 70 : 45,
+                  height: isTablet ? 70 : 45,
                   fit: BoxFit.cover,
                 ),
               ),
@@ -961,42 +941,27 @@ class _SongTile extends StatelessWidget {
                     : track.title,
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize:
-                  isTablet ? 18 : 16,
+                  fontSize: isTablet ? 18 : 16,
                 ),
                 maxLines: 1,
-                overflow:
-                TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
               ),
 
               subtitle: Text(
                 track.artist,
-                style: const TextStyle(
-                  color: Colors.white54,
-                ),
+                style: const TextStyle(color: Colors.white54),
                 maxLines: 1,
-                overflow:
-                TextOverflow.ellipsis,
+                overflow: TextOverflow.ellipsis,
               ),
 
-              trailing: const Icon(
-                Icons.more_horiz,
-                color: Colors.white54,
-              ),
+              trailing: const Icon(Icons.more_horiz, color: Colors.white54),
             ),
           ),
         ),
 
         Padding(
-          padding: EdgeInsets.only(
-            left: isTablet ? 118 : 70,
-            right: 12,
-          ),
-          child: Divider(
-            height: 1,
-            thickness: .1,
-            color: Colors.white,
-          ),
+          padding: EdgeInsets.only(left: isTablet ? 118 : 70, right: 12),
+          child: Divider(height: 1, thickness: .1, color: Colors.white),
         ),
       ],
     );
@@ -1006,100 +971,4 @@ class _SongTile extends StatelessWidget {
 String _capitalize(String text) {
   if (text.isEmpty) return text;
   return text[0].toUpperCase() + text.substring(1).toLowerCase();
-}
-class _BottomArea extends StatelessWidget {
-  const _BottomArea();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 130,
-      decoration: BoxDecoration(
-        color: Colors.black.withOpacity(.85),
-      ),
-      child: Column(
-        children: [
-
-          /// MINI PLAYER
-          Container(
-            margin: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.08),
-              borderRadius: BorderRadius.circular(18),
-            ),
-            child: Row(
-              children: [
-
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    color: Colors.white24,
-                  ),
-                ),
-
-                const SizedBox(width: 12),
-
-                const Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Indifferent",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        "Megan Moroney",
-                        style: TextStyle(
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.play_arrow,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          /// NAVIGATION
-          Expanded(
-            child: BottomNavigationBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              selectedItemColor: Colors.pink,
-              unselectedItemColor: Colors.white70,
-              items: const [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.home_filled),
-                  label: "Home",
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.search),
-                  label: "Search",
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

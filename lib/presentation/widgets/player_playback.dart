@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 
@@ -23,8 +20,6 @@ class _PlaybackControlsState extends State<PlaybackControls> {
     final isTablet = width > 700;
 
     final iconSize = isTablet ? 54.0 : 40.0;
-
-    final playSize = isTablet ? 82.0 : 55.0;
 
     final bgPlaySize = isTablet ? 130.0 : 70.0;
 

@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -20,14 +19,11 @@ class RectangleButton extends StatefulWidget {
   });
 
   @override
-  State<RectangleButton> createState() =>
-      _RectangleButtonState();
+  State<RectangleButton> createState() => _RectangleButtonState();
 }
 
-class _RectangleButtonState
-    extends State<RectangleButton>
+class _RectangleButtonState extends State<RectangleButton>
     with SingleTickerProviderStateMixin {
-
   late final AnimationController _controller;
 
   late final Animation<double> _scale;
@@ -38,15 +34,10 @@ class _RectangleButtonState
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 180,
-      ),
+      duration: const Duration(milliseconds: 180),
     );
 
-    _scale = Tween<double>(
-      begin: 1,
-      end: 0.9,
-    ).animate(
+    _scale = Tween<double>(begin: 1, end: 0.9).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOut,
@@ -82,22 +73,15 @@ class _RectangleButtonState
         child: ClipRRect(
           borderRadius: BorderRadiusGeometry.all(Radius.circular(20)),
           child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 20,
-              sigmaY: 20,
-            ),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               width: widget.width,
               height: widget.height,
-              color: Colors.white.withOpacity(.12),
-              child: Icon(
-                widget.icon,
-                color: widget.color,
-              ),
+              color: Colors.white.withValues(alpha: .12),
+              child: Icon(widget.icon, color: widget.color),
             ),
           ),
         ),
-
       ),
     );
   }

@@ -575,13 +575,6 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         shelves = allShelves.where((shelf) {
-          final title = getShelfTitle(shelf.title).toLowerCase();
-
-          // Skip jika judul mengandung "Rilis Baru"
-          // if (title.contains('rilis baru')) {
-          //   return false;
-          // }
-
           // Skip jika playlist kosong
           if (shelf.items.isEmpty) {
             return false;

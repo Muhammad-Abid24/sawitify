@@ -36,7 +36,6 @@ class NewMusicService extends ChangeNotifier {
 
   // shuffle playlist
   List<int> _shuffleQueue = [];
-  int _shufflePosition = 0;
 
   // list queue
   final List<int> _queue = [];
@@ -432,9 +431,7 @@ class NewMusicService extends ChangeNotifier {
 
     _queuePosition = 0;
 
-    if (_shuffleEnabled) {
-      _shufflePosition = _shuffleQueue.indexOf(_currentIndex);
-    }
+    if (_shuffleEnabled) {}
 
     await NewMusicStorage.saveCurrentIndex(_currentIndex);
 
@@ -460,9 +457,7 @@ class NewMusicService extends ChangeNotifier {
 
     _moveCurrentTrackToTop();
 
-    if (_shuffleEnabled) {
-      _shufflePosition = _shuffleQueue.indexOf(_currentIndex);
-    }
+    if (_shuffleEnabled) {}
 
     await NewMusicStorage.saveCurrentIndex(_currentIndex);
 
@@ -482,8 +477,6 @@ class NewMusicService extends ChangeNotifier {
       _buildShuffleQueue();
     } else {
       _shuffleQueue.clear();
-
-      _shufflePosition = 0;
     }
 
     _buildQueue();
@@ -503,8 +496,6 @@ class NewMusicService extends ChangeNotifier {
 
       _shuffleQueue.insert(0, current);
     }
-
-    _shufflePosition = 0;
   }
 
   Future<void> _savePlaylist() async {
@@ -547,8 +538,6 @@ class NewMusicService extends ChangeNotifier {
     _currentIndex = 0;
 
     _shuffleQueue.clear();
-
-    _shufflePosition = 0;
 
     _queue.clear();
 
@@ -613,9 +602,7 @@ class NewMusicService extends ChangeNotifier {
 
     _queuePosition = 0;
 
-    if (_shuffleEnabled) {
-      _shufflePosition = _shuffleQueue.indexOf(_currentIndex);
-    }
+    if (_shuffleEnabled) {}
 
     await NewMusicStorage.saveCurrentIndex(_currentIndex);
 
@@ -744,8 +731,6 @@ class NewMusicService extends ChangeNotifier {
     _currentIndex = 0;
 
     _queuePosition = 0;
-
-    _shufflePosition = 0;
 
     _trackDuration = null;
 

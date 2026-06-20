@@ -132,8 +132,6 @@ class _NavItem extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _NavItem({
-    super.key,
-
     this.icon,
 
     this.image,
