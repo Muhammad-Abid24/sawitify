@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -8,7 +7,9 @@ class CircleButton extends StatefulWidget {
   final VoidCallback? onTap;
   final double? width;
   final double? height;
-  final Color? color;
+  final double? sizeIcon;
+  final Color? colorIcon;
+  final Color? colorBg;
 
   const CircleButton({
     super.key,
@@ -16,18 +17,17 @@ class CircleButton extends StatefulWidget {
     this.onTap,
     this.width = 50,
     this.height = 50,
-    this.color = Colors.white,
+    this.sizeIcon,
+    this.colorIcon = Colors.white,
+    this.colorBg = const Color.fromRGBO(255, 255, 255, 0.12),
   });
 
   @override
-  State<CircleButton> createState() =>
-      _CircleButtonState();
+  State<CircleButton> createState() => _CircleButtonState();
 }
 
-class _CircleButtonState
-    extends State<CircleButton>
+class _CircleButtonState extends State<CircleButton>
     with SingleTickerProviderStateMixin {
-
   late final AnimationController _controller;
 
   late final Animation<double> _scale;
@@ -38,15 +38,10 @@ class _CircleButtonState
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 180,
-      ),
+      duration: const Duration(milliseconds: 180),
     );
 
-    _scale = Tween<double>(
-      begin: 1,
-      end: 0.9,
-    ).animate(
+    _scale = Tween<double>(begin: 1, end: 0.9).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOut,
@@ -81,22 +76,19 @@ class _CircleButtonState
 
         child: ClipOval(
           child: BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 20,
-              sigmaY: 20,
-            ),
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
             child: Container(
               width: widget.width,
               height: widget.height,
-              color: Colors.white.withOpacity(.12),
+              color: widget.colorBg,
               child: Icon(
                 widget.icon,
-                color: widget.color,
+                color: widget.colorIcon,
+                size: widget.sizeIcon,
               ),
             ),
           ),
         ),
-
       ),
     );
   }

@@ -29,13 +29,10 @@ class MusicInfoSection extends StatefulWidget {
   final String playlistName;
 
   @override
-  State<MusicInfoSection> createState() =>
-      _MusicInfoSectionState();
+  State<MusicInfoSection> createState() => _MusicInfoSectionState();
 }
 
-class _MusicInfoSectionState
-    extends State<MusicInfoSection> {
-
+class _MusicInfoSectionState extends State<MusicInfoSection> {
   @override
   void initState() {
     super.initState();
@@ -49,147 +46,79 @@ class _MusicInfoSectionState
 
     return Column(
       children: [
-        const SizedBox(
-          height: 11,
-        ),
+        const SizedBox(height: 11),
 
         Row(
           children: [
             Expanded(
               child: Column(
-                crossAxisAlignment:
-                CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   autoMarquee(
                     text: widget.title,
                     style: TextStyle(
                       color: AppColors.primary,
-                      fontSize:
-                      size.height < 700
-                          ? 30
-                          : 23,
-                      fontWeight:
-                      FontWeight.w500,
+                      fontSize: size.height < 700 ? 30 : 23,
+                      fontWeight: FontWeight.w500,
                     ),
                     height: 30,
                   ),
 
-                  const SizedBox(
-                    height: 3,
-                  ),
+                  const SizedBox(height: 3),
 
                   autoMarquee(
                     text: widget.artist,
                     style: TextStyle(
                       color: Colors.white.withAlpha(95),
-                      fontSize:
-                      size.height < 700
-                          ? 28
-                          : 19,
-                      fontWeight:
-                      FontWeight.w600,
+                      fontSize: size.height < 700 ? 28 : 19,
+                      fontWeight: FontWeight.w600,
                     ),
                     height: 25,
                   ),
                 ],
               ),
             ),
-            const SizedBox( width: 5),
+            const SizedBox(width: 11),
 
-
-            CircleButton(
-              icon: Icons.star_outline,
-              width: 40,
-              height: 40,
-            ),
-
-            const SizedBox( width: 5),
-
-            CircleButton(
-              icon: Icons.more_horiz,
-              width: 40,
-              height: 40,
-            ),
+            CircleButton(icon: Icons.more_horiz),
           ],
         ),
 
-        const SizedBox(
-          height: 22,
-        ),
+        const SizedBox(height: 22),
 
         StreamBuilder<Duration>(
-          stream: NewMusicService
-              .instance
-              .player
-              .positionStream,
-          builder: (
-              context,
-              positionSnapshot,
-              ) {
-            final duration =
-                NewMusicService
-                    .instance
-                    .trackDuration;
+          stream: NewMusicService.instance.player.positionStream,
+          builder: (context, positionSnapshot) {
+            final duration = NewMusicService.instance.trackDuration;
 
-            final rawPosition =
-                positionSnapshot.data ??
-                    Duration.zero;
+            final rawPosition = positionSnapshot.data ?? Duration.zero;
 
-            final position =
-            rawPosition > duration
-                ? duration
-                : rawPosition;
+            final position = rawPosition > duration ? duration : rawPosition;
 
-            final progress =
-            duration.inMilliseconds <= 0
+            final progress = duration.inMilliseconds <= 0
                 ? 0.0
-                : position
-                .inMilliseconds /
-                duration
-                    .inMilliseconds;
+                : position.inMilliseconds / duration.inMilliseconds;
 
-            final safeProgress =
-            progress.clamp(
-              0.0,
-              1.0,
-            );
+            final safeProgress = progress.clamp(0.0, 1.0);
 
             return Row(
               children: [
                 SizedBox(
                   width: 50,
                   child: Text(
-                    _formatDuration(
-                      position,
-                    ),
-                    style:
-                    const TextStyle(
-                      color: Colors.white70,
-                        fontSize: 16
-                    ),
+                    _formatDuration(position),
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ),
 
-                Expanded(
-                  child: _buildSeekBar(
-                    safeProgress * 100,
-                    duration,
-                  ),
-                ),
+                Expanded(child: _buildSeekBar(safeProgress * 100, duration)),
 
                 SizedBox(
                   width: 50,
                   child: Text(
-                    '-${_formatDuration(
-                      (duration - position).isNegative
-                          ? Duration.zero
-                          : duration - position,
-                    )}',
+                    '-${_formatDuration((duration - position).isNegative ? Duration.zero : duration - position)}',
                     textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16
-                    ),
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
                   ),
                 ),
               ],
@@ -197,38 +126,25 @@ class _MusicInfoSectionState
           },
         ),
 
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
 
         const PlaybackControls(),
 
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
 
         Row(
           children: [
             AnimatedSwitcher(
-              duration: const Duration(
-                milliseconds: 200,
-              ),
+              duration: const Duration(milliseconds: 200),
 
-              transitionBuilder:
-                  (child, animation) {
-
-                return ScaleTransition(
-                  scale: animation,
-                  child: child,
-                );
+              transitionBuilder: (child, animation) {
+                return ScaleTransition(scale: animation, child: child);
               },
 
               child: Icon(
                 _getVolumeIcon(),
 
-                key: ValueKey(
-                  _getVolumeIcon(),
-                ),
+                key: ValueKey(_getVolumeIcon()),
 
                 size: 25,
 
@@ -236,252 +152,131 @@ class _MusicInfoSectionState
               ),
             ),
 
-            const SizedBox(
-              width: 15,
-            ),
+            const SizedBox(width: 15),
 
-            Expanded(
-              child: _buildSeekerVolume(),
-            ),
+            Expanded(child: _buildSeekerVolume()),
 
-            const SizedBox(
-              width: 15,
-            ),
+            const SizedBox(width: 15),
 
-            const Icon(
-              Icons.volume_up,
-              size: 25,
-              color: Colors.white70,
-            ),
+            const Icon(Icons.volume_up, size: 25, color: Colors.white70),
           ],
         ),
 
-        const SizedBox(
-          height: 20,
-        ),
+        const SizedBox(height: 20),
 
         Row(
-          mainAxisAlignment:
-          MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            CircleButton(
-              icon: Icons.lyrics,
-            ),
+            CircleButton(icon: Icons.lyrics),
 
             CircleButton(
               icon: Icons.speaker_group,
               onTap: () async {
-
                 if (Platform.isIOS) {
-
                   await AudioOutput.show();
 
                   return;
                 }
 
-                final devices =
-                await AudioOutput
-                    .getDevices();
+                final devices = await AudioOutput.getDevices();
 
                 if (!context.mounted) {
                   return;
                 }
 
-                _showAndroidBottomSheet(
-                  context,
-
-                  devices,
-                );
+                _showAndroidBottomSheet(context, devices);
               },
             ),
-
 
             CircleButton(
               icon: Icons.playlist_play,
               onTap: () => _showListQueue(context, widget.playlistName),
             ),
           ],
-        )
+        ),
       ],
     );
   }
 
   bool _isSeeking = false;
   double? _dragProgress;
-  Widget _buildSeekBar(
-      double progress,
-      Duration duration,
-      ) {
-
-    final value =
-        _dragProgress ?? progress;
+  Widget _buildSeekBar(double progress, Duration duration) {
+    final value = _dragProgress ?? progress;
 
     return GestureDetector(
-
-      behavior:
-      HitTestBehavior.opaque,
+      behavior: HitTestBehavior.opaque,
 
       onTapDown: (details) {},
 
-      child:
-      TweenAnimationBuilder<double>(
-
-        duration: const Duration(
-          milliseconds: 180,
-        ),
+      child: TweenAnimationBuilder<double>(
+        duration: const Duration(milliseconds: 180),
 
         curve: Curves.easeOutCubic,
 
-        tween: Tween(
+        tween: Tween(begin: 1, end: _isSeeking ? 5 : 2),
 
-          begin: 1,
-
-          end:
-          _isSeeking
-
-              ? 5
-
-              : 2,
-
-        ),
-
-        builder:
-
-            (
-            context,
-            scale,
-            child,
-            ) {
-
+        builder: (context, scale, child) {
           return SizedBox(
-
             height: 40,
 
             child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                padding: EdgeInsets.zero,
 
-              data:
+                trackHeight: 3 * scale,
 
-              SliderTheme.of(context)
-
-                  .copyWith(
-
-                padding:
-                EdgeInsets.zero,
-
-                trackHeight:
-
-                3 * scale,
-
-                thumbShape:
-
-                const RoundSliderThumbShape(
+                thumbShape: const RoundSliderThumbShape(
                   enabledThumbRadius: 0.01,
                 ),
 
-                overlayShape:
+                overlayShape: SliderComponentShape.noOverlay,
 
-                SliderComponentShape.noOverlay,
+                activeTrackColor: AppColors.primary,
 
-                activeTrackColor:
+                inactiveTrackColor: Colors.white24,
 
-                AppColors.primary,
+                thumbColor: Colors.transparent,
 
-                inactiveTrackColor:
-
-                Colors.white24,
-
-                thumbColor:
-
-                Colors.transparent,
-
-                overlayColor:
-
-                Colors.transparent,
-
+                overlayColor: Colors.transparent,
               ),
 
               child: Slider(
-
                 min: 0,
 
                 max: 100,
 
-                value:
-
-                value.clamp(
-                  0,
-                  100,
-                ),
+                value: value.clamp(0, 100),
 
                 onChangeStart: (_) {
-
                   setState(() {
-
-                    _isSeeking =
-                    true;
-
+                    _isSeeking = true;
                   });
                 },
 
-                onChanged: (
-                    value,
-                    ) {
-
+                onChanged: (value) {
                   setState(() {
-
-                    _dragProgress =
-                        value;
-
+                    _dragProgress = value;
                   });
                 },
 
-                onChangeEnd: (
-                    value,
-                    ) async {
-
+                onChangeEnd: (value) async {
                   setState(() {
-
-                    _isSeeking =
-                    false;
-
+                    _isSeeking = false;
                   });
 
-                  if (duration
-                      .inMilliseconds <=
-                      0) {
-
+                  if (duration.inMilliseconds <= 0) {
                     return;
-
                   }
 
-                  final seekPosition =
-                  Duration(
-
-                    milliseconds:
-
-                    (duration
-                        .inMilliseconds *
-
-                        value /
-
-                        100)
-
+                  final seekPosition = Duration(
+                    milliseconds: (duration.inMilliseconds * value / 100)
                         .round(),
-
                   );
 
-                  await NewMusicService
-                      .instance
-                      .player
-                      .seek(
-                    seekPosition,
-                  );
+                  await NewMusicService.instance.player.seek(seekPosition);
 
                   setState(() {
-
-                    _dragProgress =
-                    null;
-
+                    _dragProgress = null;
                   });
                 },
               ),
@@ -492,36 +287,21 @@ class _MusicInfoSectionState
     );
   }
 
-  String _formatDuration(
-      Duration duration,
-      ) {
-    final minutes =
-    duration.inMinutes
-        .toString();
+  String _formatDuration(Duration duration) {
+    final minutes = duration.inMinutes.toString();
 
-    final seconds =
-    (duration.inSeconds % 60)
-        .toString()
-        .padLeft(
-      2,
-      '0',
-    );
+    final seconds = (duration.inSeconds % 60).toString().padLeft(2, '0');
 
     return '$minutes:$seconds';
   }
 
-
   Future<void> _initializeVolume() async {
-
-    final volume =
-    await FlutterVolumeController.getVolume();
+    final volume = await FlutterVolumeController.getVolume();
 
     if (!mounted) return;
 
     setState(() {
-
       _volume = volume!;
-
     });
   }
 
@@ -529,157 +309,77 @@ class _MusicInfoSectionState
   double? _dragVolume;
   bool _isVolumeSeeking = false;
   Widget _buildSeekerVolume() {
-
-    final value =
-        (_dragVolume ?? _volume) * 100;
+    final value = (_dragVolume ?? _volume) * 100;
 
     return GestureDetector(
-
       behavior: HitTestBehavior.opaque,
 
       child: TweenAnimationBuilder<double>(
-
-        duration: const Duration(
-          milliseconds: 180,
-        ),
+        duration: const Duration(milliseconds: 180),
 
         curve: Curves.easeOutCubic,
 
-        tween: Tween(
+        tween: Tween(begin: 1, end: _isVolumeSeeking ? 5 : 2),
 
-          begin: 1,
-
-          end:
-
-          _isVolumeSeeking
-
-              ? 5
-
-              : 2,
-
-        ),
-
-        builder:
-
-            (
-            context,
-            scale,
-            child,
-            ) {
-
+        builder: (context, scale, child) {
           return SizedBox(
-
             height: 40,
 
             child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                padding: EdgeInsets.zero,
 
-              data:
+                trackHeight: 3 * scale,
 
-              SliderTheme.of(context)
-
-                  .copyWith(
-
-                padding:
-                EdgeInsets.zero,
-
-                trackHeight:
-
-                3 * scale,
-
-                thumbShape:
-
-                const RoundSliderThumbShape(
+                thumbShape: const RoundSliderThumbShape(
                   enabledThumbRadius: 0.01,
                 ),
 
-                overlayShape:
+                overlayShape: SliderComponentShape.noOverlay,
 
-                SliderComponentShape.noOverlay,
+                activeTrackColor: Colors.white,
 
-                activeTrackColor:
+                inactiveTrackColor: Colors.white24,
 
-                Colors.white,
+                thumbColor: Colors.transparent,
 
-                inactiveTrackColor:
-
-                Colors.white24,
-
-                thumbColor:
-
-                Colors.transparent,
-
-                overlayColor:
-
-                Colors.transparent,
-
+                overlayColor: Colors.transparent,
               ),
 
               child: Slider(
-
                 min: 0,
 
                 max: 100,
 
-                value:
-
-                value.clamp(
-                  0,
-                  100,
-                ),
+                value: value.clamp(0, 100),
 
                 onChangeStart: (_) {
-
                   setState(() {
-
-                    _isVolumeSeeking =
-                    true;
-
+                    _isVolumeSeeking = true;
                   });
                 },
 
-                onChanged: (
-                    value,
-                    ) async {
-
-                  final volume =
-                      value / 100;
+                onChanged: (value) async {
+                  final volume = value / 100;
 
                   setState(() {
-
-                    _dragVolume =
-                        volume;
-
+                    _dragVolume = volume;
                   });
 
-                  await FlutterVolumeController
-                      .setVolume(
-                    volume,
-                  );
+                  await FlutterVolumeController.setVolume(volume);
                 },
 
-                onChangeEnd: (
-                    value,
-                    ) async {
+                onChangeEnd: (value) async {
+                  final volume = value / 100;
 
-                  final volume =
-                      value / 100;
-
-                  await FlutterVolumeController
-                      .setVolume(
-                    volume,
-                  );
+                  await FlutterVolumeController.setVolume(volume);
 
                   setState(() {
+                    _volume = volume;
 
-                    _volume =
-                        volume;
+                    _dragVolume = null;
 
-                    _dragVolume =
-                    null;
-
-                    _isVolumeSeeking =
-                    false;
-
+                    _isVolumeSeeking = false;
                   });
                 },
               ),
@@ -691,9 +391,7 @@ class _MusicInfoSectionState
   }
 
   IconData _getVolumeIcon() {
-
-    final volume =
-        _dragVolume ?? _volume;
+    final volume = _dragVolume ?? _volume;
 
     if (volume <= 0.01) {
       return Icons.volume_off_rounded;
@@ -707,128 +405,58 @@ class _MusicInfoSectionState
   }
 }
 
-
 void _showAndroidBottomSheet(BuildContext context, List<dynamic> devices) {
+  final device = devices.first;
 
-  final device =
-      devices.first;
-
-  final isBluetooth =
-  device['isBluetooth'] as bool;
+  final isBluetooth = device['isBluetooth'] as bool;
 
   showModalBottomSheet(
-
     context: context,
 
-    backgroundColor:
+    backgroundColor: const Color(0xFF1E1E1E),
 
-    const Color(
-      0xFF1E1E1E,
-    ),
-
-    shape:
-
-    const RoundedRectangleBorder(
-
-      borderRadius:
-
-      BorderRadius.vertical(
-
-        top:
-        Radius.circular(
-          24,
-        ),
-      ),
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),
 
     builder: (_) {
-
       return SafeArea(
-
         child: Padding(
-
-          padding:
-
-          const EdgeInsets.all(
-            20,
-          ),
+          padding: const EdgeInsets.all(20),
 
           child: Column(
-
-            mainAxisSize:
-
-            MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
 
             children: [
-
               ListTile(
-
                 leading: Icon(
-
-                  isBluetooth
-
-                      ? Icons.headphones
-
-                      : Icons.phone_android,
+                  isBluetooth ? Icons.headphones : Icons.phone_android,
 
                   color: Colors.white,
                 ),
 
                 title: Text(
-
                   device['name'],
 
-                  style:
-
-                  const TextStyle(
-
-                    color:
-
-                    Colors.white,
-
-                    fontSize:
-                    16,
-                  ),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
 
               const Divider(),
 
               ListTile(
+                leading: const Icon(Icons.bluetooth, color: Colors.blue),
 
-                leading:
-
-                const Icon(
-
-                  Icons.bluetooth,
-
-                  color:
-                  Colors.blue,
-                ),
-
-                title:
-
-                const Text(
-
+                title: const Text(
                   'Hubungkan perangkat Bluetooth',
 
-                  style:
-
-                  TextStyle(
-
-                    color:
-                    Colors.white,
-                  ),
+                  style: TextStyle(color: Colors.white),
                 ),
 
                 onTap: () async {
+                  Navigator.pop(context);
 
-                  Navigator.pop(
-                    context,
-                  );
-
-                  await AudioOutput
-                      .openBluetoothSettings();
+                  await AudioOutput.openBluetoothSettings();
                 },
               ),
             ],
@@ -839,27 +467,18 @@ void _showAndroidBottomSheet(BuildContext context, List<dynamic> devices) {
   );
 }
 
-void _showListQueue(
-    BuildContext context,
-    String playlistName,
-    ) {
-
-  final music =
-      NewMusicService.instance;
+void _showListQueue(BuildContext context, String playlistName) {
+  final music = NewMusicService.instance;
 
   showModalBottomSheet(
-
     context: context,
 
     isScrollControlled: true,
 
-    backgroundColor:
-    Colors.transparent,
+    backgroundColor: Colors.transparent,
 
     builder: (_) {
-
       return DraggableScrollableSheet(
-
         initialChildSize: 0.65,
 
         minChildSize: 0.65,
@@ -868,134 +487,69 @@ void _showListQueue(
 
         expand: false,
 
-        builder: (
-
-            context,
-
-            scrollController,
-
-            ) {
-
+        builder: (context, scrollController) {
           return Container(
-
-            decoration:
-            const BoxDecoration(
-
+            decoration: const BoxDecoration(
               color: Colors.black,
 
-              borderRadius:
-
-              BorderRadius.vertical(
-
-                top:
-
-                Radius.circular(
-                  28,
-                ),
-              ),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
             ),
 
             child: SafeArea(
-
               top: false,
 
-              child:
-
-              AnimatedBuilder(
-
+              child: AnimatedBuilder(
                 animation: music,
 
-                builder: (
+                builder: (_, __) {
+                  final queue = music.queueTracks;
 
-                    _,
-
-                    __,
-
-                    ) {
-
-                  final queue =
-
-                      music
-                          .queueTracks;
-
-                  if (
-
-                  queue.isEmpty
-
-                  ) {
-
+                  if (queue.isEmpty) {
                     return const SizedBox();
                   }
 
                   return Column(
-
                     children: [
-
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      const SizedBox(height: 10),
 
                       Container(
-
                         width: 48,
 
                         height: 5,
 
-                        decoration:
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
 
-                        BoxDecoration(
-
-                          color:
-
-                          AppColors.primary,
-
-                          borderRadius:
-
-                          BorderRadius.circular(
-                            999,
-                          ),
+                          borderRadius: BorderRadius.circular(999),
                         ),
                       ),
 
-                      const SizedBox(
-                        height: 16,
-                      ),
+                      const SizedBox(height: 16),
 
                       const Text(
-
                         'Continue Playing',
 
                         style: TextStyle(
-
                           fontSize: 17,
 
-                          fontWeight:
-
-                          FontWeight.bold,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
 
                       Text(
-
                         'From $playlistName',
 
-                        style:
-
-                        const TextStyle(
-
+                        style: const TextStyle(
                           fontSize: 14,
 
-                          color:
-
-                          Colors.white70,
+                          color: Colors.white70,
                         ),
                       ),
 
                       const SizedBox(height: 15),
 
                       Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           RectangleButton(
                             icon: Icons.repeat,
@@ -1011,156 +565,69 @@ void _showListQueue(
                         ],
                       ),
 
-                      const SizedBox(
-                        height: 16,
-                      ),
+                      const SizedBox(height: 16),
 
                       // =====================
                       // NOW PLAYING
                       // =====================
-
                       Material(
+                        color: AppColors.background1,
 
-                        color:
+                        child: _buildQueueTile(
+                          context: context,
 
-                        AppColors.background1,
+                          music: music,
 
-                        child:
+                          track: queue.first,
 
-                        _buildQueueTile(
+                          index: 0,
 
-                          context:
-
-                          context,
-
-                          music:
-
-                          music,
-
-                          track:
-
-                          queue.first,
-
-                          index:
-
-                          0,
-
-                          playing:
-
-                          true,
+                          playing: true,
                         ),
                       ),
 
-                      const Divider(
-
-                        height: 1,
-
-                        color:
-
-                        Colors.white10,
-                      ),
+                      const Divider(height: 1, color: Colors.white10),
 
                       // =====================
                       // LIST QUEUE
                       // =====================
-
                       Expanded(
+                        child: ReorderableListView.builder(
+                          scrollController: scrollController,
 
-                        child:
+                          buildDefaultDragHandles: false,
 
-                        ReorderableListView.builder(
+                          itemCount: queue.length - 1,
 
-                          scrollController:
-
-                          scrollController,
-
-                          buildDefaultDragHandles:
-
-                          false,
-
-                          itemCount:
-
-                          queue.length - 1,
-
-                          onReorder:
-
-                              (
-
-                              oldIndex,
-
-                              newIndex,
-
-                              ) {
-
-                            music.moveQueueItem(
-
-                              oldIndex + 1,
-
-                              newIndex + 1,
-                            );
+                          onReorder: (oldIndex, newIndex) {
+                            music.moveQueueItem(oldIndex + 1, newIndex + 1);
                           },
 
-                          itemBuilder:
+                          itemBuilder: (context, index) {
+                            final realIndex = index + 1;
 
-                              (
-
-                              context,
-
-                              index,
-
-                              ) {
-
-                            final realIndex =
-
-                                index + 1;
-
-                            final track =
-
-                            queue[
-                            realIndex
-                            ];
+                            final track = queue[realIndex];
 
                             return Material(
+                              key: ValueKey(track.videoId),
 
-                              key:
+                              color: Colors.transparent,
 
-                              ValueKey(
-                                track.videoId,
-                              ),
+                              child: _buildQueueTile(
+                                context: context,
 
-                              color:
+                                music: music,
 
-                              Colors.transparent,
+                                track: track,
 
-                              child:
+                                index: realIndex,
 
-                              _buildQueueTile(
-
-                                context:
-
-                                context,
-
-                                music:
-
-                                music,
-
-                                track:
-
-                                track,
-
-                                index:
-
-                                realIndex,
-
-                                playing:
-
-                                false,
+                                playing: false,
                               ),
                             );
                           },
                         ),
                       ),
-
                     ],
                   );
                 },
@@ -1174,7 +641,6 @@ void _showListQueue(
 }
 
 Widget _buildQueueTile({
-
   required BuildContext context,
 
   required NewMusicService music,
@@ -1184,146 +650,68 @@ Widget _buildQueueTile({
   required int index,
 
   required bool playing,
-
 }) {
-
   return ListTile(
+    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
 
-    contentPadding:
-
-    const EdgeInsets.symmetric(
-
-      horizontal: 20,
-
-      vertical: 4,
-    ),
-
-    leading:
-
-    SizedBox(
-
+    leading: SizedBox(
       width: 45,
 
       height: 45,
 
       child: Stack(
-
-        alignment:
-
-        Alignment.center,
+        alignment: Alignment.center,
 
         children: [
-
           ClipRRect(
+            borderRadius: BorderRadius.circular(7),
 
-            borderRadius:
-
-            BorderRadius.circular(
-              7,
-            ),
-
-            child:
-
-            Image.network(
-
+            child: Image.network(
               track.thumbnail,
 
               width: 45,
 
               height: 45,
 
-              fit:
+              fit: BoxFit.cover,
 
-              BoxFit.cover,
-
-              errorBuilder:
-
-                  (
-
-                  _,
-
-                  __,
-
-                  ___,
-
-                  ) {
-
+              errorBuilder: (_, __, ___) {
                 return Container(
-
                   width: 45,
 
                   height: 45,
 
-                  decoration:
+                  decoration: BoxDecoration(
+                    color: Colors.white10,
 
-                  BoxDecoration(
-
-                    color:
-
-                    Colors.white10,
-
-                    borderRadius:
-
-                    BorderRadius.circular(
-                      7,
-                    ),
+                    borderRadius: BorderRadius.circular(7),
                   ),
 
-                  child:
-
-                  const Icon(
-
-                    Icons.album_rounded,
-
-                    color:
-
-                    Colors.white54,
-                  ),
+                  child: const Icon(Icons.album_rounded, color: Colors.white54),
                 );
               },
             ),
           ),
 
           if (playing)
-
             Container(
-
               width: 45,
 
               height: 45,
 
-              decoration:
+              decoration: BoxDecoration(
+                color: AppColors.background1.withAlpha(75),
 
-              BoxDecoration(
-
-                color:
-
-                AppColors.background1.withAlpha(
-                  75,
-                ),
-
-                borderRadius:
-
-                BorderRadius.circular(
-                  7,
-                ),
+                borderRadius: BorderRadius.circular(7),
               ),
 
-              child:
-
-              const Center(
-
-                child:
-
-                Icon(
-
+              child: const Center(
+                child: Icon(
                   Icons.graphic_eq,
 
                   size: 26,
 
-                  color:
-
-                  AppColors.primary,
+                  color: AppColors.primary,
                 ),
               ),
             ),
@@ -1331,218 +719,115 @@ Widget _buildQueueTile({
       ),
     ),
 
-    title:
-
-    Column(
-
-      crossAxisAlignment:
-
-      CrossAxisAlignment.start,
+    title: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
 
       children: [
-
         if (playing)
-
           const Text(
-
             'Now Playing',
 
             style: TextStyle(
-
               fontSize: 12,
 
-              fontWeight:
+              fontWeight: FontWeight.w600,
 
-              FontWeight.w600,
-
-              color:
-
-              AppColors.primary,
+              color: AppColors.primary,
             ),
           ),
 
         playing
-
             ? autoMarquee(
+                text: track.title,
 
-          text:
+                height: 20,
 
-          track.title,
+                style: const TextStyle(
+                  color: Colors.white,
 
-          height:
+                  fontWeight: FontWeight.bold,
 
-          20,
-
-          style:
-
-          const TextStyle(
-
-            color:
-
-            Colors.white,
-
-            fontWeight:
-
-            FontWeight.bold,
-
-            fontSize:
-            16,
-          ),
-        )
-
+                  fontSize: 16,
+                ),
+              )
             : Text(
+                track.title,
 
-          track.title,
+                maxLines: 1,
 
-          maxLines:
+                overflow: TextOverflow.ellipsis,
 
-          1,
+                style: const TextStyle(
+                  color: Colors.white,
 
-          overflow:
+                  fontWeight: FontWeight.w500,
 
-          TextOverflow.ellipsis,
-
-          style:
-
-          const TextStyle(
-
-            color:
-
-            Colors.white,
-
-            fontWeight:
-
-            FontWeight.w500,
-
-            fontSize:
-            16,
-          ),
-        ),
+                  fontSize: 16,
+                ),
+              ),
 
         playing
-
             ? autoMarquee(
+                text: track.artist,
 
-          text:
+                height: 17,
 
-          track.artist,
-
-          height:
-
-          17,
-
-          style:
-
-          const TextStyle(
-
-            color:
-
-            Colors.white70,
-
-            fontSize:
-            13,
-          ),
-        )
-
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              )
             : Text(
+                track.artist,
 
-          track.artist,
+                maxLines: 1,
 
-          maxLines:
+                overflow: TextOverflow.ellipsis,
 
-          1,
-
-          overflow:
-
-          TextOverflow.ellipsis,
-
-          style:
-
-          const TextStyle(
-
-            color:
-
-            Colors.white70,
-
-            fontSize:
-            13,
-          ),
-        ),
+                style: const TextStyle(color: Colors.white70, fontSize: 13),
+              ),
       ],
     ),
 
-    trailing:
+    trailing: index == 0
+        ? GestureDetector(
+            onTap: music.togglePlayPause,
 
-    index == 0
+            child: Container(
+              width: 40,
 
-        ? CircleButton(
+              height: 40,
 
-      icon:
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
 
-      music.isPlaying
+                color: AppColors.primary,
+              ),
 
-          ? Icons.pause
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 180),
 
-          : Icons.play_arrow,
+                switchInCurve: Curves.easeOut,
 
-      width: 40,
+                switchOutCurve: Curves.easeIn,
 
-      height: 40,
+                transitionBuilder: (child, animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
 
-      color:
+                child: Icon(
+                  music.isPlaying ? Icons.pause : Icons.play_arrow,
 
-      AppColors.primary,
+                  key: ValueKey(music.isPlaying),
 
-      onTap:
+                  color: Colors.white,
 
-      music.togglePlayPause,
-    )
-
+                  size: 22,
+                ),
+              ),
+            ),
+          )
         : ReorderableDragStartListener(
+            index: index - 1,
 
-      index:
-
-      index - 1,
-
-      child:
-
-      const Icon(
-
-        Icons.drag_indicator,
-      ),
-    ),
-
-    onTap: () async {
-
-      if (
-
-      index == 0
-
-      ) {
-
-        await music
-            .togglePlayPause();
-
-        return;
-      }
-
-      if (
-
-      !context.mounted
-
-      ) {
-
-        return;
-      }
-
-      Navigator.pop(
-        context,
-      );
-
-      await music
-          .playQueue(
-        index,
-      );
-    },
+            child: const Icon(Icons.drag_indicator),
+          ),
   );
 }
