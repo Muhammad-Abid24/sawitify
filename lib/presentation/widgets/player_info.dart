@@ -184,7 +184,7 @@ class _MusicInfoSectionState extends State<MusicInfoSection> {
                   return;
                 }
 
-                _showAndroidBottomSheet(context, devices);
+                _showAndroidSpeakerBottomSheet(context, devices);
               },
             ),
 
@@ -405,7 +405,10 @@ class _MusicInfoSectionState extends State<MusicInfoSection> {
   }
 }
 
-void _showAndroidBottomSheet(BuildContext context, List<dynamic> devices) {
+void _showAndroidSpeakerBottomSheet(
+  BuildContext context,
+  List<dynamic> devices,
+) {
   final device = devices.first;
 
   final isBluetooth = device['isBluetooth'] as bool;

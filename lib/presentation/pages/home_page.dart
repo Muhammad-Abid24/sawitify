@@ -1,15 +1,14 @@
 import 'dart:async';
-import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sawitify/core/theme/app_theme.dart';
-import 'package:sawitify/presentation/pages/playlist_page.dart';
-import 'package:sawitify/presentation/widgets/mini_player.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/response/home_response.dart';
 import '../../core/storage/session_manager.dart';
+import '../../core/utils/audio_output.dart';
 import '../../data/model/track_model.dart';
 import '../../data/repository/playlist_repository.dart';
 import '../../data/repository/home_repository.dart';
@@ -55,7 +54,7 @@ class _HomePageState extends State<HomePage> {
       case true when title.contains("Hits Sepanjang Masa"):
         return "Lagu Legendaris";
 
-        case true when title.contains("Hits Indonesia"):
+      case true when title.contains("Hits Indonesia"):
         return "Hits Indonesia";
 
       default:
@@ -69,16 +68,11 @@ class _HomePageState extends State<HomePage> {
     loadUserName();
     loadHome();
 
-    _scrollController.addListener(
-      _updateScrollbar,
-    );
+    _scrollController.addListener(_updateScrollbar);
   }
-
-
 
   @override
   void dispose() {
-
     _scrollController.dispose();
 
     super.dispose();
@@ -90,71 +84,55 @@ class _HomePageState extends State<HomePage> {
 
   Timer? _scrollTimer;
 
-  final ScrollController _scrollController =
-  ScrollController();
+  final ScrollController _scrollController = ScrollController();
 
   void _updateScrollbar() {
-
     if (!_scrollController.hasClients) {
       return;
     }
 
-    final max =
-        _scrollController.position.maxScrollExtent;
+    final max = _scrollController.position.maxScrollExtent;
 
     if (max <= 0) {
       return;
     }
 
-    final offset =
-        _scrollController.offset;
+    final offset = _scrollController.offset;
 
-    _scrollProgress =
-        (offset / max)
-            .clamp(0.0, 1.0);
+    _scrollProgress = (offset / max).clamp(0.0, 1.0);
 
     if (!_showScrollbar) {
-
       setState(() {
         _showScrollbar = true;
       });
     } else {
-
       setState(() {});
     }
 
     _scrollTimer?.cancel();
 
-    _scrollTimer = Timer(
+    _scrollTimer = Timer(const Duration(milliseconds: 800), () {
+      if (!mounted) {
+        return;
+      }
 
-      const Duration(
-        milliseconds: 800,
-      ),
-
-          () {
-
-        if (!mounted) {
-          return;
-        }
-
-        setState(() {
-          _showScrollbar = false;
-        });
-      },
-    );
+      setState(() {
+        _showScrollbar = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.light.copyWith(
-            statusBarIconBrightness: Brightness.light,
-            statusBarColor: Colors.transparent,
-          ),
+        value: SystemUiOverlayStyle.light.copyWith(
+          statusBarIconBrightness: Brightness.light,
+          statusBarColor: Colors.transparent,
+        ),
         child: Container(
-        color: Colors.black,
-        child: Stack(
+          color: Colors.black,
+          child: Stack(
             children: [
               Positioned(
                 top: 0,
@@ -169,17 +147,13 @@ class _HomePageState extends State<HomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
 
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
-
-              )
-              ]
-        )
-      )
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+            ],
+          ),
+        ),
       );
     }
-
 
     if (errorMessage != null) {
       return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -190,216 +164,163 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           color: Colors.black,
           child: Stack(
-              children: [
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                    color: Colors.black,
-                    padding: const EdgeInsets.fromLTRB(16, 55, 12, 9),
-                    child: _buildHeader(),
-                  ),
+            children: [
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  color: Colors.black,
+                  padding: const EdgeInsets.fromLTRB(16, 55, 12, 9),
+                  child: _buildHeader(),
                 ),
-                Center(
-                    child: Text(errorMessage!),
-                ),
-              ]
-          )
-      )
+              ),
+              Center(child: Text(errorMessage!)),
+            ],
+          ),
+        ),
       );
     }
-
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light.copyWith(
         statusBarIconBrightness: Brightness.light,
         statusBarColor: Colors.transparent,
       ),
-        child: Stack(
-          children: [
-            // Background color fills entire screen
-            Container(
+      child: Stack(
+        children: [
+          // Background color fills entire screen
+          Container(color: Colors.black),
+
+          // Fixed Header (not scrollable)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
               color: Colors.black,
+              padding: const EdgeInsets.fromLTRB(16, 55, 12, 9),
+              child: _buildHeader(),
             ),
+          ),
 
-            // Fixed Header (not scrollable)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                color: Colors.black,
-                padding: const EdgeInsets.fromLTRB(16, 55, 12, 9),
-                child: _buildHeader(),
-              ),
-            ),
+          // Scrollable content - starts below header, extends behind navbar
+          Padding(
+            padding: const EdgeInsets.only(top: 110),
 
-            // Scrollable content - starts below header, extends behind navbar
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 110,
-              ),
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: () async {
+                    await loadHome();
+                  },
 
-              child: Stack(
+                  child: CustomScrollView(
+                    controller: _scrollController,
 
-                children: [
+                    physics: const AlwaysScrollableScrollPhysics(),
 
-                  RefreshIndicator(
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
 
-                    onRefresh: () async {
-                      await loadHome();
-                    },
-
-                    child: CustomScrollView(
-
-                      controller:
-                      _scrollController,
-
-                      physics:
-                      const AlwaysScrollableScrollPhysics(),
-
-                      slivers: [
-
-                        SliverToBoxAdapter(
-
-                          child: Padding(
-
-                            padding:
-                            const EdgeInsets.all(
-                              16,
-                            ),
-
-                            child:
-                            _buildCategories(),
-                          ),
+                          child: _buildCategories(),
                         ),
+                      ),
 
-                        SliverList(
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate((context, index) {
+                          return _buildShelf(shelves[index]);
+                        }, childCount: shelves.length),
+                      ),
 
-                          delegate:
-                          SliverChildBuilderDelegate(
-
-                                (
-                                context,
-                                index,
-                                ) {
-
-                              return _buildShelf(
-                                shelves[index],
-                              );
-                            },
-
-                            childCount:
-                            shelves.length,
-                          ),
-                        ),
-
-                        const SliverToBoxAdapter(
-
-                          child: SizedBox(
-                            height: 150,
-                          ),
-                        ),
-                      ],
-                    ),
+                      const SliverToBoxAdapter(child: SizedBox(height: 150)),
+                    ],
                   ),
+                ),
 
-                  Positioned(
+                Positioned(
+                  right: 0,
 
-                    right: 0,
+                  top: 20,
 
-                    top: 20,
+                  bottom: 160,
 
-                    bottom: 160,
+                  child: IgnorePointer(
+                    child: AnimatedOpacity(
+                      opacity: _showScrollbar ? 1 : 0,
 
-                    child: IgnorePointer(
+                      duration: const Duration(milliseconds: 250),
 
-                      child: AnimatedOpacity(
+                      child: Align(
+                        alignment: Alignment(1, -1 + (_scrollProgress * 2)),
 
-                        opacity:
-                        _showScrollbar
-                            ? 1
-                            : 0,
+                        child: Container(
+                          width: 5,
 
-                        duration:
-                        const Duration(
-                          milliseconds: 250,
-                        ),
+                          height: 55,
 
-                        child: Align(
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
 
-                          alignment: Alignment(
-
-                            1,
-
-                            -1 +
-                                (_scrollProgress * 2),
-                          ),
-
-                          child: Container(
-
-                            width: 5,
-
-                            height: 55,
-
-                            decoration:
-
-                            BoxDecoration(
-
-                              color:
-                              AppColors.primary,
-
-                              borderRadius:
-
-                              BorderRadius.circular(
-                                999,
-                              ),
-                            ),
+                            borderRadius: BorderRadius.circular(999),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
-            // Floating MiniPlayer (above navbar)
-            // const Positioned(
-            //   left: 0,
-            //   right: 0,
-            //   bottom: 100,
-            //   child: MiniPlayer(),
-            // ),
-
-          ],
-        )
+          // Floating MiniPlayer (above navbar)
+          // const Positioned(
+          //   left: 0,
+          //   right: 0,
+          //   bottom: 100,
+          //   child: MiniPlayer(),
+          // ),
+        ],
+      ),
     );
   }
 
   Widget _buildHeader() {
     return Row(
       children: [
-       Image.asset(
-      "assets/logo/ic_logo_horizontal.png",
-      width: 150,
-      height: 50,),
+        Image.asset(
+          "assets/logo/ic_logo_horizontal.png",
+          width: 150,
+          height: 50,
+        ),
         const Spacer(),
+
         IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.cast),
+          onPressed: () async {
+            if (Platform.isIOS) {
+              await AudioOutput.show();
+
+              return;
+            }
+
+            final devices = await AudioOutput.getDevices();
+
+            if (!context.mounted) {
+              return;
+            }
+
+            _showAndroidSpeakerBottomSheet(context, devices);
+          },
+          icon: const Icon(Icons.speaker_group),
         ),
       ],
     );
   }
 
   Widget _buildCategories() {
-    final categories = [
-      "All",
-      "Music",
-      "Events",
-    ];
+    final categories = ["All", "Music", "Events"];
 
     return SizedBox(
       height: 38,
@@ -407,42 +328,32 @@ class _HomePageState extends State<HomePage> {
         scrollDirection: Axis.horizontal,
         itemBuilder: (_, index) {
           return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 18,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 18),
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(30),
             ),
             alignment: Alignment.center,
             child: Text(
-                categories[index],
-              style: TextStyle(
-                color: Colors.white
-              ),
+              categories[index],
+              style: TextStyle(color: Colors.white),
             ),
           );
         },
-        separatorBuilder: (_, __) =>
-        const SizedBox(width: 10),
+        separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemCount: categories.length,
       ),
     );
   }
 
-
   Widget _buildShelf(Shelf shelf) {
     return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 12,
-            ),
-            child: Row(
-            mainAxisAlignment:
-            MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(
                 child: Align(
@@ -452,8 +363,7 @@ class _HomePageState extends State<HomePage> {
                     height: 20,
                     decoration: BoxDecoration(
                       color: AppColors.primary,
-                      borderRadius:
-                      BorderRadius.circular(200),
+                      borderRadius: BorderRadius.circular(200),
                     ),
                   ),
                 ),
@@ -469,142 +379,112 @@ class _HomePageState extends State<HomePage> {
                   color: Colors.white,
                 ),
               ),
-              ]
-            )
-
+            ],
           ),
-          SizedBox(
-            height: 220,
-            child: ListView.builder(
-              padding:
-              const EdgeInsets.symmetric(
-                horizontal: 16,
-              ),
-              scrollDirection: Axis.horizontal,
-              itemCount: shelf.items.length,
-              itemBuilder: (_, index) {
-                final item =
-                shelf.items[index];
+        ),
+        SizedBox(
+          height: 220,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            scrollDirection: Axis.horizontal,
+            itemCount: shelf.items.length,
+            itemBuilder: (_, index) {
+              final item = shelf.items[index];
 
-                return Padding(
-                  padding:
-                  const EdgeInsets.only(
-                    right: 12,
-                  ),
-                  child: SizedBox(
-                    width: 135,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12),
-                      onTap: () async {
-                        debugPrint(
-                          'CLICK PLAYLIST: ${item.title}',
-                        );
+              return Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: SizedBox(
+                  width: 135,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(12),
+                    onTap: () async {
+                      debugPrint('CLICK PLAYLIST: ${item.title}');
 
-                        debugPrint(
-                          'BROWSE ID: ${item.browseId}',
-                        );
+                      debugPrint('BROWSE ID: ${item.browseId}');
 
-                        debugPrint('===================');
-                        debugPrint('TITLE      : ${item.title}');
-                        debugPrint('SUBTITLE   : ${item.subtitle}');
-                        debugPrint('BROWSE ID  : ${item.browseId}');
-                        debugPrint('THUMBNAIL  : ${item.thumbnail}');
-                        debugPrint('===================');
+                      debugPrint('===================');
+                      debugPrint('TITLE      : ${item.title}');
+                      debugPrint('SUBTITLE   : ${item.subtitle}');
+                      debugPrint('BROWSE ID  : ${item.browseId}');
+                      debugPrint('THUMBNAIL  : ${item.thumbnail}');
+                      debugPrint('===================');
 
-                        final browseId = item.browseId;
+                      final browseId = item.browseId;
 
-                        if (browseId.startsWith('VL')) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => NewPlaylistPage(
-                                browseId: item.browseId,
-                                title: item.title,
-                                subTitle: item.subtitle,
-                                thumbnail: item.thumbnail,
-                              ),
-                            ),
-                          );
-                          return;
-                        }
-
-                        if (browseId.startsWith('MPRE')) {
-
-                          debugPrint(
-                            'SINGLE/ALBUM => ${item.title}',
-                          );
-
-                          try {
-
-                            final repository =
-                            PlaylistRepository(
-                              ApiClient().dioBrowse,
-                            );
-
-                            final response =
-                            await repository
-                                .getPlaylistDetail(
-                              browseId,
-                            );
-
-                            if (response.tracks.isEmpty) {
-                              return;
-                            }
-
-                            final tracks = List<TrackModel>.from(
-                              response.tracks,
-                            );
-
-                            final artist =
-                            item.subtitle.contains('•')
-                                ? item.subtitle.split('•').last.trim()
-                                : item.subtitle;
-
-                            if (tracks.isEmpty) {
-                              return;
-                            }
-
-                            /// Override metadata track pertama
-                            tracks[0] = TrackModel(
+                      if (browseId.startsWith('VL')) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => NewPlaylistPage(
+                              browseId: item.browseId,
                               title: item.title,
-                              artist: artist,
-                              videoId: tracks[0].videoId,
+                              subTitle: item.subtitle,
                               thumbnail: item.thumbnail,
-                              duration: tracks[0].duration,
-                            );
+                            ),
+                          ),
+                        );
+                        return;
+                      }
 
-                            await NewMusicService.instance
-                                .setPlaylist(
-                              playlist: tracks,
-                              startIndex: 0,
-                            );
+                      if (browseId.startsWith('MPRE')) {
+                        debugPrint('SINGLE/ALBUM => ${item.title}');
 
-                            await NewMusicService.instance
-                                .playTrack(0);
+                        try {
+                          final repository = PlaylistRepository(
+                            ApiClient().dioBrowse,
+                          );
 
-                          } catch (e) {
+                          final response = await repository.getPlaylistDetail(
+                            browseId,
+                          );
 
-                            debugPrint(
-                              'PLAY ALBUM ERROR: $e',
-                            );
+                          if (response.tracks.isEmpty) {
+                            return;
                           }
+
+                          final tracks = List<TrackModel>.from(response.tracks);
+
+                          final artist = item.subtitle.contains('•')
+                              ? item.subtitle.split('•').last.trim()
+                              : item.subtitle;
+
+                          if (tracks.isEmpty) {
+                            return;
+                          }
+
+                          /// Override metadata track pertama
+                          tracks[0] = TrackModel(
+                            title: item.title,
+                            artist: artist,
+                            videoId: tracks[0].videoId,
+                            thumbnail: item.thumbnail,
+                            duration: tracks[0].duration,
+                          );
+
+                          await NewMusicService.instance.setPlaylist(
+                            playlist: tracks,
+                            startIndex: 0,
+                          );
+
+                          await NewMusicService.instance.playTrack(0);
+                        } catch (e) {
+                          debugPrint('PLAY ALBUM ERROR: $e');
                         }
-
-
-                      },
-                      child: AlbumCard(
-                        image: item.thumbnail,
-                        title: item.title,
-                        artist: item.subtitle,
-                      ),
+                      }
+                    },
+                    child: AlbumCard(
+                      image: item.thumbnail,
+                      title: item.title,
+                      artist: item.subtitle,
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 
   Future<void> loadUserName() async {
@@ -623,10 +503,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadHome() async {
     try {
-      final repository =
-      HomeRepository(
-        ApiClient().dioBrowse,
-      );
+      final repository = HomeRepository(ApiClient().dioBrowse);
 
       final response = await repository.getHome();
 
@@ -636,12 +513,11 @@ class _HomePageState extends State<HomePage> {
       for (final shelf in response.shelves) {
         debugPrint(
           'HOME => "${shelf.title}" '
-              'items=${shelf.items.length}',
+          'items=${shelf.items.length}',
         );
       }
 
-      final more1 =
-      await repository.load1(
+      final more1 = await repository.load1(
         '4qmFsgKhAhIMRkVtdXNpY19ob21lGpACQ0FONnh3RkhUVmh2TURoZmF5MUtVVVJYYjBWQ1EyNDRTMHBJYkRCWU0wSm9XakpXWm1NeU5XaGpTRTV2WWpOU1ptSllWbnBoVjA1bVkwZEdibHBXT1hsYVYyUndZakkxYUdKQ1NXWlZWRVl6VkVkc1ptVnNSbkJsVlVaVlVWVlNSR0pZV25oalZtaHFXVzVHZEZWSFNqVlhWRnB2WVhodk1sUllWbnBoVjA1RllWaE9hbUl6V214amJteFJXVmRrYkZVeVZubGtiV3hxV2xNeFNGcFlVa2xpTWpGc1ZVZEdibHBSUVVKQlIyeHJRVUZHU2xKQlFVSlRWVkZCUVZGRlJDMXdla2gyVVd0RFEwRlI=',
       );
 
@@ -657,13 +533,13 @@ class _HomePageState extends State<HomePage> {
       for (final shelf in more1.shelves) {
         debugPrint(
           'CONTINUATION 1 => "${shelf.title}" '
-              'items=${shelf.items.length}',
+          'items=${shelf.items.length}',
         );
       }
       for (final shelf in more2.shelves) {
         debugPrint(
           'CONTINUATION 2 => "${shelf.title}" '
-              'items=${shelf.items.length}',
+          'items=${shelf.items.length}',
         );
       }
 
@@ -673,17 +549,11 @@ class _HomePageState extends State<HomePage> {
         ...more2.shelves,
       ];
 
-      debugPrint(
-        'HOME COUNT = ${response.shelves.length}',
-      );
+      debugPrint('HOME COUNT = ${response.shelves.length}');
 
-      debugPrint(
-        'MORE COUNT = ${more1.shelves.length}',
-      );
+      debugPrint('MORE COUNT = ${more1.shelves.length}');
 
-      debugPrint(
-        'ALL COUNT = ${allShelves.length}',
-      );
+      debugPrint('ALL COUNT = ${allShelves.length}');
 
       for (int i = 0; i < allShelves.length; i++) {
         debugPrint(
@@ -693,19 +563,13 @@ class _HomePageState extends State<HomePage> {
 
       if (!mounted) return;
 
-      debugPrint(
-        'TOTAL SHELVES : ${allShelves.length}',
-      );
+      debugPrint('TOTAL SHELVES : ${allShelves.length}');
 
       for (final shelf in allShelves) {
-        debugPrint(
-          'SHELF => ${shelf.title} (${shelf.items.length} items)',
-        );
+        debugPrint('SHELF => ${shelf.title} (${shelf.items.length} items)');
 
         for (final album in shelf.items.take(5)) {
-          debugPrint(
-            '   • ${album.title} | ${album.subtitle}',
-          );
+          debugPrint('   • ${album.title} | ${album.subtitle}');
         }
       }
 
@@ -729,12 +593,8 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
     } catch (e, s) {
-      debugPrint(
-        "ERROR : $e",
-      );
-      debugPrint(
-        s.toString(),
-      );
+      debugPrint("ERROR : $e");
+      debugPrint(s.toString());
 
       if (!mounted) return;
 
@@ -744,6 +604,69 @@ class _HomePageState extends State<HomePage> {
       });
     }
   }
+}
 
+void _showAndroidSpeakerBottomSheet(
+  BuildContext context,
+  List<dynamic> devices,
+) {
+  final device = devices.first;
 
+  final isBluetooth = device['isBluetooth'] as bool;
+
+  showModalBottomSheet(
+    context: context,
+
+    backgroundColor: const Color(0xFF1E1E1E),
+
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+
+    builder: (_) {
+      return SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+
+            children: [
+              ListTile(
+                leading: Icon(
+                  isBluetooth ? Icons.headphones : Icons.phone_android,
+
+                  color: Colors.white,
+                ),
+
+                title: Text(
+                  device['name'],
+
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+
+              const Divider(),
+
+              ListTile(
+                leading: const Icon(Icons.bluetooth, color: Colors.blue),
+
+                title: const Text(
+                  'Hubungkan perangkat Bluetooth',
+
+                  style: TextStyle(color: Colors.white),
+                ),
+
+                onTap: () async {
+                  Navigator.pop(context);
+
+                  await AudioOutput.openBluetoothSettings();
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

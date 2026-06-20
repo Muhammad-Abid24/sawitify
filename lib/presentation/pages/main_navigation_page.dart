@@ -22,7 +22,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   String _photoUrl = "";
   late PageController _pageController;
 
-
   @override
   void initState() {
     super.initState();
@@ -65,46 +64,40 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
-      fit: StackFit.expand,
-      children: [
+        fit: StackFit.expand,
+        children: [
+          IndexedStack(index: _currentIndex, children: pages),
 
-        IndexedStack(
-          index: _currentIndex,
-          children: pages,
-        ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 95,
+            child: ListenableBuilder(
+              listenable: NewMusicService.instance,
+              builder: (context, _) {
+                final track = NewMusicService.instance.currentTrack;
 
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 95,
-          child: ListenableBuilder(
-            listenable: NewMusicService.instance,
-            builder: (context, _) {
-              final track = NewMusicService.instance.currentTrack;
+                if (track == null) {
+                  return const SizedBox.shrink();
+                }
 
-              if (track == null) {
-                return const SizedBox.shrink();
-              }
-
-              return const MiniPlayer();
-            },
+                return const MiniPlayer();
+              },
+            ),
           ),
-        ),
 
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: BottomNavPill(
-            image: _photoUrl.isNotEmpty
-                ? NetworkImage(_photoUrl)
-                : null,
-            selectedIndex: _currentIndex,
-            onTabChanged: _onTabChanged,
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: BottomNavPill(
+              image: _photoUrl.isNotEmpty ? NetworkImage(_photoUrl) : null,
+              selectedIndex: _currentIndex,
+              onTabChanged: _onTabChanged,
+            ),
           ),
-        ),
-      ],
-    ),
+        ],
+      ),
     );
   }
 }

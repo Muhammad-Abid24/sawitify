@@ -10,6 +10,8 @@ import io.flutter.plugin.common.MethodChannel
 
 import androidx.mediarouter.media.MediaRouter
 import com.ryanheise.audioservice.AudioServiceActivity
+import android.app.ActivityManager
+import android.os.Process
 
 class MainActivity : AudioServiceActivity() {
 
@@ -133,5 +135,24 @@ class MainActivity : AudioServiceActivity() {
         startActivity(
             intent
         )
+    }
+
+    override fun onDestroy() {
+
+        super.onDestroy()
+
+        if (
+
+            isTaskRoot
+
+        ) {
+
+            finishAndRemoveTask()
+
+            Process.killProcess(
+
+                Process.myPid()
+            )
+        }
     }
 }

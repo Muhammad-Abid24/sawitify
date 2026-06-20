@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -77,7 +76,7 @@ class BottomNavPill extends StatelessWidget {
                   children: [
                     Expanded(
                       child: _NavItem(
-                        icon: CupertinoIcons.house_alt,
+                        icon: Icons.home,
                         label: "Home",
                         selected: selectedIndex == 0,
                         onTap: () => onTabChanged?.call(0),
@@ -102,6 +101,7 @@ class BottomNavPill extends StatelessWidget {
                     Expanded(
                       child: _NavItem(
                         image: image,
+                        isProfile: true,
                         label: "Profile",
                         selected: selectedIndex == 3,
                         onTap: () => onTabChanged?.call(3),
@@ -120,16 +120,30 @@ class BottomNavPill extends StatelessWidget {
 
 class _NavItem extends StatelessWidget {
   final IconData? icon;
+
   final NetworkImage? image;
+
+  final bool isProfile;
+
   final String label;
+
   final bool selected;
+
   final VoidCallback? onTap;
 
   const _NavItem({
+    super.key,
+
     this.icon,
+
     this.image,
+
+    this.isProfile = false,
+
     required this.label,
+
     this.selected = false,
+
     this.onTap,
   });
 
@@ -137,41 +151,76 @@ class _NavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+
         decoration: BoxDecoration(
           color: selected
               ? AppColors.primary.withValues(alpha: 0.15)
               : Colors.transparent,
+
           borderRadius: BorderRadius.circular(100),
         ),
+
         child: Column(
           mainAxisSize: MainAxisSize.min,
+
           mainAxisAlignment: MainAxisAlignment.center,
+
           children: [
             if (image != null)
               ClipOval(
                 child: Image(
                   image: image!,
+
                   width: 24,
+
                   height: 24,
+
                   fit: BoxFit.cover,
+
+                  errorBuilder: (_, __, ___) {
+                    return Icon(
+                      Icons.person,
+
+                      size: 24,
+
+                      color: selected ? AppColors.primary : Colors.black,
+                    );
+                  },
                 ),
+              )
+            else if (isProfile)
+              Icon(
+                Icons.person,
+
+                size: 24,
+
+                color: selected ? AppColors.primary : Colors.black,
               )
             else
               Icon(
                 icon,
+
                 size: 24,
+
                 color: selected ? AppColors.primary : Colors.black,
               ),
+
             const SizedBox(height: 3),
+
             Text(
               label,
+
               style: TextStyle(
                 fontSize: 9,
+
                 fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+
                 color: selected ? AppColors.primary : Colors.black,
-                height: 1.0,
+
+                height: 1,
               ),
             ),
           ],

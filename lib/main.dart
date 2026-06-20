@@ -12,31 +12,30 @@ import '../app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  WidgetsBinding.instance.addObserver(AppLifecycleObserver());
   await dotenv.load(fileName: ".env");
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   if (Platform.isAndroid || Platform.isIOS) {
     await JustAudioBackground.init(
-      androidNotificationChannelId:
-      'com.sawitify.audio',
+      androidNotificationChannelId: 'com.sawitify.audio',
 
-      androidNotificationChannelName:
-      'Sawitify',
+      androidNotificationChannelName: 'Sawitify',
 
-      androidNotificationOngoing:
-      true,
+      androidNotificationOngoing: true,
     );
   }
 
-  await NewMusicService.instance
-      .initialize();
+  await NewMusicService.instance.initialize();
 
-  runApp(
-    const ProviderScope(
-      child: MainApp(),
-    ),
-  );
+  runApp(const ProviderScope(child: MainApp()));
+}
 
+class AppLifecycleObserver with WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      NewMusicService.instance.forceKillPlayer();
+    }
+  }
 }

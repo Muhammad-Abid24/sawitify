@@ -726,6 +726,34 @@ class NewMusicService extends ChangeNotifier {
     _queue.remove(_currentIndex);
   }
 
+  Future<void> forceKillPlayer() async {
+    try {
+      await player.stop();
+    } catch (_) {}
+
+    try {
+      await player.dispose();
+    } catch (_) {}
+
+    _playlist.clear();
+
+    _queue.clear();
+
+    _shuffleQueue.clear();
+
+    _currentIndex = 0;
+
+    _queuePosition = 0;
+
+    _shufflePosition = 0;
+
+    _trackDuration = null;
+
+    _isPlaying = false;
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _playerStateSub?.cancel();

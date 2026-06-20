@@ -15,6 +15,9 @@ class Assets {
   static const AssetGenImage icLogoHorizontal = AssetGenImage(
     'assets/logo/ic_logo_horizontal.png',
   );
+  static const AssetGenImage icLogoSplashAndroid = AssetGenImage(
+    'assets/logo/ic_logo_splash_android.png',
+  );
   static const AssetGenImage icLogoVertical = AssetGenImage(
     'assets/logo/ic_logo_vertical.png',
   );

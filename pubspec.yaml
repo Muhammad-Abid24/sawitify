@@ -64,6 +64,7 @@ flutter:
     - assets/logo/ic_app.png
     - assets/logo/ic_logo_vertical.png
     - assets/logo/ic_logo_horizontal.png
+    - assets/logo/ic_logo_splash_android.png
     - assets/logo/ic_sawitify.png
     - assets/logo/ic_sawitify_long.png
     - assets/logo/ic_sawitify_text.png
@@ -83,7 +84,7 @@ flutter_native_splash:
 
   android_12:
     color: "#000000"
-    image: assets/logo/ic_logo_horizontal.png
+    image: assets/logo/ic_logo_splash_android.png
 
   ios: true
   android: true

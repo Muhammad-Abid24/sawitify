@@ -13,23 +13,14 @@ class ProfilePage extends StatelessWidget {
   final String? email;
   final String? photoUrl;
 
-  const ProfilePage({
-    super.key,
-    this.userName,
-    this.email,
-    this.photoUrl,
-  });
+  const ProfilePage({super.key, this.userName, this.email, this.photoUrl});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         // Background fills entire screen
-        Container(
-          decoration: BoxDecoration(
-            color: AppColors.background1,
-          ),
-        ),
+        Container(decoration: BoxDecoration(color: AppColors.background1)),
 
         SafeArea(
           child: Container(
@@ -44,28 +35,73 @@ class ProfilePage extends StatelessWidget {
                 _buildMenuItem(
                   title: userName ?? 'Guest',
                   subtitle: 'My Profile',
-                  leading: ClipOval(
-                    child: Image.network(
-                      photoUrl!,
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                    ),
+                  leading: Builder(
+                    builder: (_) {
+                      final url = photoUrl?.trim() ?? '';
+
+                      final valid =
+                          url.isNotEmpty &&
+                          Uri.tryParse(url)?.hasAuthority == true;
+
+                      if (!valid) {
+                        return const CircleAvatar(
+                          radius: 20,
+
+                          backgroundColor: AppColors.primary,
+
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        );
+                      }
+
+                      return ClipOval(
+                        child: Image.network(
+                          url,
+
+                          width: 40,
+
+                          height: 40,
+
+                          fit: BoxFit.cover,
+
+                          errorBuilder: (_, __, ___) {
+                            return const CircleAvatar(
+                              radius: 20,
+
+                              backgroundColor: AppColors.primary,
+
+                              child: Icon(
+                                Icons.person,
+
+                                color: Colors.white,
+
+                                size: 20,
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
                   ),
                   onTap: () {
                     Navigator.pop(context);
                   },
                 ),
 
-                Divider(height: 1, indent: 20, endIndent: 20, color: AppColors.primary.withValues(alpha: 0.75)),
+                Divider(
+                  height: 1,
+                  indent: 20,
+                  endIndent: 20,
+                  color: AppColors.primary.withValues(alpha: 0.75),
+                ),
 
                 _buildMenuItem(
                   title: 'Pengaturan Musik',
                   subtitle: 'Hapus Cache Aplikasi',
-                  leading: const Icon(
-                    Icons.music_note,
-                    color: Colors.white,
-                  ),
+                  leading: const Icon(Icons.music_note, color: Colors.white),
                   onTap: () {
                     MyAlertDialog.show(
                       context: context,
@@ -78,53 +114,55 @@ class ProfilePage extends StatelessWidget {
                   },
                 ),
 
-                Divider(height: 1, indent: 20, endIndent: 20, color: AppColors.primary.withValues(alpha: 0.75)),
+                Divider(
+                  height: 1,
+                  indent: 20,
+                  endIndent: 20,
+                  color: AppColors.primary.withValues(alpha: 0.75),
+                ),
 
                 _buildMenuItem(
                   title: 'Lisensi',
                   subtitle: 'Keluar dari aplikasi',
-                  leading: const Icon(
-                    Icons.balance,
-                    color: Colors.white,
-                  ),
+                  leading: const Icon(Icons.balance, color: Colors.white),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const LicensePageOwn(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const LicensePageOwn()),
                     );
                   },
                 ),
 
-                Divider(height: 1, indent: 20, endIndent: 20, color: AppColors.primary.withValues(alpha: 0.75)),
+                Divider(
+                  height: 1,
+                  indent: 20,
+                  endIndent: 20,
+                  color: AppColors.primary.withValues(alpha: 0.75),
+                ),
 
                 _buildMenuItem(
                   title: 'Tentang',
                   subtitle: 'Keluar dari aplikasi',
-                  leading: const Icon(
-                    Icons.info,
-                    color: Colors.white,
-                  ),
+                  leading: const Icon(Icons.info, color: Colors.white),
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => const AboutPage(),
-                      ),
+                      MaterialPageRoute(builder: (_) => const AboutPage()),
                     );
                   },
                 ),
 
-                Divider(height: 1, indent: 20, endIndent: 20, color: AppColors.primary.withValues(alpha: 0.75)),
+                Divider(
+                  height: 1,
+                  indent: 20,
+                  endIndent: 20,
+                  color: AppColors.primary.withValues(alpha: 0.75),
+                ),
 
                 _buildMenuItem(
                   title: 'Logout',
                   subtitle: 'Keluar dari aplikasi',
-                  leading: const Icon(
-                    Icons.logout_rounded,
-                    color: Colors.red,
-                  ),
+                  leading: const Icon(Icons.logout_rounded, color: Colors.red),
                   onTap: () {
                     _logout(context);
                   },
@@ -132,12 +170,9 @@ class ProfilePage extends StatelessWidget {
               ],
             ),
           ),
-        )
+        ),
       ],
     );
-
-
-
   }
 
   Widget _buildMenuItem({
@@ -150,17 +185,10 @@ class ProfilePage extends StatelessWidget {
       borderRadius: BorderRadius.circular(20),
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 18,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         child: Row(
           children: [
-            SizedBox(
-              width: 40,
-              height: 40,
-              child: Center(child: leading),
-            ),
+            SizedBox(width: 40, height: 40, child: Center(child: leading)),
 
             const SizedBox(width: 16),
 
@@ -173,7 +201,7 @@ class ProfilePage extends StatelessWidget {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -199,7 +227,6 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-
   Future<void> _logout(BuildContext context) async {
     MyAlertDialog.show(
       context: context,
@@ -213,10 +240,8 @@ class ProfilePage extends StatelessWidget {
 
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (_) => const IntroScreen(),
-          ),
-              (route) => false,
+          MaterialPageRoute(builder: (_) => const IntroScreen()),
+          (route) => false,
         );
       },
       onCancelBtnTap: () {
@@ -224,5 +249,4 @@ class ProfilePage extends StatelessWidget {
       },
     );
   }
-
 }
