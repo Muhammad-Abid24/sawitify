@@ -286,7 +286,7 @@ class _HomePageState extends State<HomePage> {
         Image.asset(
           "assets/logo/ic_logo_horizontal.png",
           width: 150,
-          height: 50,
+          height: 35,
         ),
         const Spacer(),
 
@@ -306,7 +306,7 @@ class _HomePageState extends State<HomePage> {
 
             _showAndroidSpeakerBottomSheet(context, devices);
           },
-          icon: const Icon(Icons.speaker_group),
+          icon: const Icon(Icons.cast),
         ),
       ],
     );
@@ -318,23 +318,16 @@ class _HomePageState extends State<HomePage> {
 
     return SizedBox(
       height: 38,
-
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-
         itemCount: categories.length,
-
         separatorBuilder: (_, __) => const SizedBox(width: 10),
-
         itemBuilder: (_, index) {
           final isSelected = index == _selectedCategory;
-
           return Material(
             color: Colors.transparent,
-
             child: InkWell(
               borderRadius: BorderRadius.circular(30),
-
               onTap: () {
                 if (_selectedCategory == index) {
                   return;
@@ -347,20 +340,15 @@ class _HomePageState extends State<HomePage> {
 
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
-
                 padding: const EdgeInsets.symmetric(horizontal: 18),
-
                 decoration: BoxDecoration(
                   color: isSelected ? AppColors.primary : AppColors.background1,
-
                   borderRadius: BorderRadius.circular(30),
                 ),
 
                 alignment: Alignment.center,
-
                 child: Text(
                   categories[index],
-
                   style: const TextStyle(color: Colors.white),
                 ),
               ),

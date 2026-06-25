@@ -99,20 +99,21 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<dynamic> concerts(String engine, String query, String apiKey) async {
+  Future<dynamic> search(
+    String alt,
+    String key,
+    Map<String, dynamic> body,
+  ) async {
     final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{
-      r'engine': engine,
-      r'q': query,
-      r'api_key': apiKey,
-    };
+    final queryParameters = <String, dynamic>{r'alt': alt, r'key': key};
     final _headers = <String, dynamic>{};
-    const Map<String, dynamic>? _data = null;
+    final _data = <String, dynamic>{};
+    _data.addAll(body);
     final _options = _setStreamType<dynamic>(
-      Options(method: 'GET', headers: _headers, extra: _extra)
+      Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/',
+            '/music/get_search_suggestions',
             queryParameters: queryParameters,
             data: _data,
           )

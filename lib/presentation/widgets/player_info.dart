@@ -168,7 +168,7 @@ class _MusicInfoSectionState extends State<MusicInfoSection> {
             CircleButton(icon: Icons.lyrics),
 
             CircleButton(
-              icon: Icons.speaker_group,
+              icon: Icons.cast,
               onTap: () async {
                 if (Platform.isIOS) {
                   await AudioOutput.show();

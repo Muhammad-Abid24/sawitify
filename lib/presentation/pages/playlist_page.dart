@@ -767,12 +767,12 @@ class _PlaylistPageState extends State<PlaylistPage>
             ),
           ),
 
-          const Positioned(left: 0, right: 0, bottom: 105, child: MiniPlayer()),
+          const Positioned(left: 0, right: 0, bottom: 85, child: MiniPlayer()),
 
           Positioned(
             left: 0,
             right: 0,
-            bottom: 40,
+            bottom: 30,
             child: MyForm(
               controller: searchController,
               capitalize: TextCapitalization.none,

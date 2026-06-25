@@ -71,7 +71,7 @@ class _MyFormState extends State<MyForm> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 56,
+      height: 50,
       margin: const EdgeInsets.symmetric(horizontal: 20),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
@@ -155,7 +155,7 @@ class _MyFormState extends State<MyForm> {
                 children: [
                   /// SEARCH ICON
                   Padding(
-                    padding: const EdgeInsets.only(left: 6, right: 14),
+                    padding: const EdgeInsets.only(left: 6, right: 5),
                     child: Icon(
                       widget.prefixIcon,
                       size: 28,
@@ -199,7 +199,7 @@ class _MyFormState extends State<MyForm> {
 
                         suffixIcon: _showClearIcon
                             ? Padding(
-                                padding: const EdgeInsets.only(right: 6),
+                                padding: const EdgeInsets.only(right: 0),
                                 child: IconButton(
                                   icon: const Icon(
                                     Icons.clear,

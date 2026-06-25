@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:sawitify/core/network/interceptor/search_interceptor.dart';
 import 'package:sawitify/core/network/service_config.dart';
 
 import 'interceptor/base_interceptor.dart';
@@ -39,6 +40,26 @@ class DioClient {
 
     dio.interceptors.addAll([
       PlayerInterceptor(),
+      ErrorInterceptor(),
+      LogInterceptor(requestBody: true, responseBody: true),
+    ]);
+
+    return dio;
+  }
+
+  static Dio searchDio() {
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: ServiceConfig.baseUrl,
+        connectTimeout: const Duration(seconds: 40),
+        receiveTimeout: const Duration(seconds: 40),
+        sendTimeout: const Duration(seconds: 40),
+        headers: {"Content-Type": "application/json"},
+      ),
+    );
+
+    dio.interceptors.addAll([
+      SearchInterceptor(),
       ErrorInterceptor(),
       LogInterceptor(requestBody: true, responseBody: true),
     ]);

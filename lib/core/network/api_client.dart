@@ -5,14 +5,16 @@ import 'package:sawitify/core/network/service_config.dart';
 import 'dio_client.dart';
 
 class ApiClient {
-  late final Dio dioBrowse, dioPlayer;
-  late final ApiService apiBrowse, apiPlayer;
+  late final Dio dioBrowse, dioPlayer, dioSearch;
+  late final ApiService apiBrowse, apiPlayer, apiSearch;
 
   ApiClient() {
     dioBrowse = DioClient.homeDio();
     dioPlayer = DioClient.playerDio();
+    dioSearch = DioClient.searchDio();
 
     apiBrowse = ApiService(dioBrowse, baseUrl: ServiceConfig.baseUrl);
     apiPlayer = ApiService(dioPlayer, baseUrl: ServiceConfig.playUrl);
+    apiSearch = ApiService(dioSearch, baseUrl: ServiceConfig.baseUrl);
   }
 }

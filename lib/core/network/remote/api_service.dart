@@ -27,4 +27,11 @@ abstract class ApiService {
     @Body() Map<String, dynamic> body,
     @Query('prettyPrint') bool prettyPrint,
   );
+
+  @POST('/music/get_search_suggestions')
+  Future<dynamic> search(
+    @Query('alt') String alt,
+    @Query('key') String key,
+    @Body() Map<String, dynamic> body,
+  );
 }
