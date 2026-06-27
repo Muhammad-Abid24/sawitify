@@ -15,6 +15,7 @@
 
     <application
         android:label="sawitify"
+        android:hardwareAccelerated="true"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <service

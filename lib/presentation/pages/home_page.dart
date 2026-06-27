@@ -363,26 +363,33 @@ class _HomePageState extends State<HomePage> {
     // ================= ALL =================
 
     if (_selectedCategory == 0) {
-      return SliverToBoxAdapter(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (concerts1.isNotEmpty) _buildConcertSwiper(),
-            const SizedBox(height: 25),
+      return SliverMainAxisGroup(
+        slivers: [
+          if (concerts1.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [_buildConcertSwiper(), const SizedBox(height: 25)],
+              ),
+            ),
 
-            ...shelves.map((shelf) => _buildShelf(shelf)),
-          ],
-        ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => _buildShelf(shelves[index]),
+              childCount: shelves.length,
+            ),
+          ),
+        ],
       );
     }
 
     // ================= MUSIC =================
 
     if (_selectedCategory == 1) {
-      return SliverToBoxAdapter(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: shelves.map((shelf) => _buildShelf(shelf)).toList(),
+      return SliverList(
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => _buildShelf(shelves[index]),
+          childCount: shelves.length,
         ),
       );
     }
@@ -401,12 +408,9 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Container(
                   width: 5,
-
                   height: 20,
-
                   decoration: BoxDecoration(
                     color: AppColors.primary,
-
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
@@ -415,12 +419,9 @@ class _HomePageState extends State<HomePage> {
 
                 const Text(
                   'Konser di Indonesia',
-
                   style: TextStyle(
                     color: Colors.white,
-
                     fontSize: 20,
-
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -442,7 +443,6 @@ class _HomePageState extends State<HomePage> {
                 itemBuilder: (_, index) {
                   return SizedBox(
                     width: 160,
-
                     child: _buildConcertCard1(concerts1[index]),
                   );
                 },
@@ -480,7 +480,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              const SizedBox(width: 6),
+              const SizedBox(width: 11),
 
               const Text(
                 'Upcoming Concert',
@@ -488,7 +488,7 @@ class _HomePageState extends State<HomePage> {
                 style: TextStyle(
                   color: Colors.white,
 
-                  fontSize: 18,
+                  fontSize: 20,
 
                   fontWeight: FontWeight.bold,
                   height: 1.0,
@@ -498,7 +498,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
 
-        const SizedBox(height: 30),
+        const SizedBox(height: 40),
 
         Center(
           child: SizedBox(
@@ -871,143 +871,147 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildShelf(Shelf shelf) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    width: 5,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(200),
+    return RepaintBoundary(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: 5,
+                      height: 20,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(200),
+                      ),
                     ),
                   ),
                 ),
-              ),
 
-              const SizedBox(width: 5),
+                const SizedBox(width: 11),
 
-              Text(
-                getShelfTitle(shelf.title),
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                Text(
+                  getShelfTitle(shelf.title),
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            scrollDirection: Axis.horizontal,
-            itemCount: shelf.items.length,
-            itemBuilder: (_, index) {
-              final item = shelf.items[index];
+          SizedBox(
+            height: 250,
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+              scrollDirection: Axis.horizontal,
+              itemCount: shelf.items.length,
+              itemBuilder: (_, index) {
+                final item = shelf.items[index];
 
-              return Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: SizedBox(
-                  width: 135,
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: () async {
-                      debugPrint('CLICK PLAYLIST: ${item.title}');
+                return Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: SizedBox(
+                    width: 135,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () async {
+                        debugPrint('CLICK PLAYLIST: ${item.title}');
 
-                      debugPrint('BROWSE ID: ${item.browseId}');
+                        debugPrint('BROWSE ID: ${item.browseId}');
 
-                      debugPrint('===================');
-                      debugPrint('TITLE      : ${item.title}');
-                      debugPrint('SUBTITLE   : ${item.subtitle}');
-                      debugPrint('BROWSE ID  : ${item.browseId}');
-                      debugPrint('THUMBNAIL  : ${item.thumbnail}');
-                      debugPrint('===================');
+                        debugPrint('===================');
+                        debugPrint('TITLE      : ${item.title}');
+                        debugPrint('SUBTITLE   : ${item.subtitle}');
+                        debugPrint('BROWSE ID  : ${item.browseId}');
+                        debugPrint('THUMBNAIL  : ${item.thumbnail}');
+                        debugPrint('===================');
 
-                      final browseId = item.browseId;
+                        final browseId = item.browseId;
 
-                      if (browseId.startsWith('VL')) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PlaylistPage(
-                              browseId: item.browseId,
-                              title: item.title,
-                              subTitle: item.subtitle,
-                              thumbnail: item.thumbnail,
+                        if (browseId.startsWith('VL')) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PlaylistPage(
+                                browseId: item.browseId,
+                                title: item.title,
+                                subTitle: item.subtitle,
+                                thumbnail: item.thumbnail,
+                              ),
                             ),
-                          ),
-                        );
-                        return;
-                      }
-
-                      if (browseId.startsWith('MPRE')) {
-                        debugPrint('SINGLE/ALBUM => ${item.title}');
-
-                        try {
-                          final repository = PlaylistRepository(
-                            ApiClient().dioBrowse,
                           );
-
-                          final response = await repository.getPlaylistDetail(
-                            browseId,
-                          );
-
-                          if (response.tracks.isEmpty) {
-                            return;
-                          }
-
-                          final tracks = List<TrackModel>.from(response.tracks);
-
-                          final artist = item.subtitle.contains('•')
-                              ? item.subtitle.split('•').last.trim()
-                              : item.subtitle;
-
-                          if (tracks.isEmpty) {
-                            return;
-                          }
-
-                          /// Override metadata track pertama
-                          tracks[0] = TrackModel(
-                            title: item.title,
-                            artist: artist,
-                            videoId: tracks[0].videoId,
-                            thumbnail: item.thumbnail,
-                            duration: tracks[0].duration,
-                          );
-
-                          await MusicService.instance.setPlaylist(
-                            playlist: tracks,
-                            startIndex: 0,
-                          );
-
-                          await MusicService.instance.playTrack(0);
-                        } catch (e) {
-                          debugPrint('PLAY ALBUM ERROR: $e');
+                          return;
                         }
-                      }
-                    },
-                    child: AlbumCard(
-                      image: item.thumbnail,
-                      title: item.title,
-                      artist: item.subtitle,
+
+                        if (browseId.startsWith('MPRE')) {
+                          debugPrint('SINGLE/ALBUM => ${item.title}');
+
+                          try {
+                            final repository = PlaylistRepository(
+                              ApiClient().dioBrowse,
+                            );
+
+                            final response = await repository.getPlaylistDetail(
+                              browseId,
+                            );
+
+                            if (response.tracks.isEmpty) {
+                              return;
+                            }
+
+                            final tracks = List<TrackModel>.from(
+                              response.tracks,
+                            );
+
+                            final artist = item.subtitle.contains('•')
+                                ? item.subtitle.split('•').last.trim()
+                                : item.subtitle;
+
+                            if (tracks.isEmpty) {
+                              return;
+                            }
+
+                            /// Override metadata track pertama
+                            tracks[0] = TrackModel(
+                              title: item.title,
+                              artist: artist,
+                              videoId: tracks[0].videoId,
+                              thumbnail: item.thumbnail,
+                              duration: tracks[0].duration,
+                            );
+
+                            await MusicService.instance.setPlaylist(
+                              playlist: tracks,
+                              startIndex: 0,
+                            );
+
+                            await MusicService.instance.playTrack(0);
+                          } catch (e) {
+                            debugPrint('PLAY ALBUM ERROR: $e');
+                          }
+                        }
+                      },
+                      child: AlbumCard(
+                        image: item.thumbnail,
+                        title: item.title,
+                        artist: item.subtitle,
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
