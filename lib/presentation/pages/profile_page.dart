@@ -20,7 +20,7 @@ class ProfilePage extends StatelessWidget {
     return Stack(
       children: [
         // Background fills entire screen
-        Container(decoration: BoxDecoration(color: AppColors.background1)),
+        Container(decoration: BoxDecoration(color: Colors.black)),
 
         SafeArea(
           child: Container(

@@ -17,6 +17,7 @@ part 'music_playback_service.dart';
 part 'music_queue_service.dart';
 
 part 'music_playlist_service.dart';
+part 'music_sleep_timer_service.dart';
 
 class MusicService extends ChangeNotifier {
   static final MusicService instance = MusicService._();
@@ -56,6 +57,18 @@ class MusicService extends ChangeNotifier {
   bool _shuffleEnabled = false;
 
   String? _lastError;
+
+  // ======================================================
+  // SLEEP TIMER
+  // ======================================================
+
+  Timer? _sleepTimer;
+
+  DateTime? _sleepEndTime;
+
+  Duration? _sleepDuration;
+
+  StreamSubscription<int>? _sleepTickerSub;
 
   // ======================================================
   // QUEUE
@@ -121,6 +134,21 @@ class MusicService extends ChangeNotifier {
 
   bool get isPlaying => _isPlaying;
 
+  // timer
+  bool get hasSleepTimer => _sleepTimer != null;
+  DateTime? get sleepEndTime => _sleepEndTime;
+  Duration? get sleepDuration => _sleepDuration;
+  Duration get remainingSleepTime {
+    if (_sleepEndTime == null) {
+      return Duration.zero;
+    }
+    final remain = _sleepEndTime!.difference(DateTime.now());
+    if (remain.isNegative) {
+      return Duration.zero;
+    }
+    return remain;
+  }
+
   /// Inisialisasi service.
   Future<void> initialize() async {
     if (_initialized) {
@@ -180,12 +208,13 @@ class MusicService extends ChangeNotifier {
   @override
   void dispose() {
     _playerStateSub?.cancel();
-
     _positionSub?.cancel();
-
     _playingSub?.cancel();
 
     player.dispose();
+
+    _sleepTimer?.cancel();
+    _sleepTickerSub?.cancel();
 
     super.dispose();
   }

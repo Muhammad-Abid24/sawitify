@@ -112,17 +112,14 @@ class _SearchPageState extends State<SearchPage> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: _buildHeader(),
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: MyForm(
-                controller: searchController,
-                hintText: 'Artist, Songs, Albums and More..',
-                prefixIcon: Icons.search,
-              ),
+            MyForm(
+              controller: searchController,
+              hintText: 'Artist, Songs, Albums and More..',
+              prefixIcon: Icons.search,
             ),
 
             /*Expanded(
@@ -215,6 +212,8 @@ class _SearchPageState extends State<SearchPage> {
 
                             title: Text(
                               item.title,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -223,6 +222,8 @@ class _SearchPageState extends State<SearchPage> {
 
                             subtitle: Text(
                               item.subtitle,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                               style: const TextStyle(
                                 color: Colors.grey,
                                 fontSize: 13,
@@ -300,6 +301,8 @@ class _SearchPageState extends State<SearchPage> {
 
                           title: Text(
                             item.title,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
@@ -308,6 +311,8 @@ class _SearchPageState extends State<SearchPage> {
 
                           subtitle: Text(
                             item.subtitle,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 13,

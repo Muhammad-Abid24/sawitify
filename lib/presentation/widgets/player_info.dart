@@ -562,6 +562,7 @@ void _showListQueue(BuildContext context, String playlistName) {
                             icon: Icons.timer,
                             width: 75,
                             height: 40,
+                            onTap: () => _showSleepTimer(context),
                           ),
                         ],
                       ),
@@ -830,5 +831,217 @@ Widget _buildQueueTile({
 
             child: const Icon(Icons.drag_indicator),
           ),
+  );
+}
+
+void _showSleepTimer(BuildContext context) {
+  final music = MusicService.instance;
+
+  showModalBottomSheet(
+    context: context,
+
+    isScrollControlled: true,
+
+    backgroundColor: Colors.transparent,
+
+    builder: (_) {
+      return DraggableScrollableSheet(
+        initialChildSize: 0.65,
+
+        minChildSize: 0.65,
+
+        maxChildSize: 0.85,
+
+        expand: false,
+
+        builder: (context, scrollController) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.black,
+
+              borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+            ),
+
+            child: SafeArea(
+              top: false,
+
+              child: AnimatedBuilder(
+                animation: music,
+
+                builder: (_, __) {
+                  final queue = music.queueTracks;
+
+                  if (queue.isEmpty) {
+                    return const SizedBox();
+                  }
+
+                  return Column(
+                    children: [
+                      const SizedBox(height: 10),
+
+                      Container(
+                        width: 48,
+
+                        height: 5,
+
+                        decoration: BoxDecoration(
+                          color: AppColors.primary,
+
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'Sleep Timer',
+
+                        style: TextStyle(
+                          fontSize: 17,
+
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      const Divider(height: 1, color: Colors.white10),
+
+                      // =====================
+                      // LIST SLEEP TIMER
+                      // =====================
+                      Expanded(
+                        child: ListView(
+                          controller: scrollController,
+                          padding: EdgeInsets.zero,
+                          children: [
+                            _buildSleepTile(
+                              title: "5 Minutes",
+                              subtitle: "Stop music after 5 minutes",
+                              icon: Icons.bedtime_rounded,
+                              onTap: () async {
+                                await music.startSleepTimer(
+                                  const Duration(minutes: 5),
+                                );
+                                //if (context.mounted) Navigator.pop(context);
+                              },
+                            ),
+
+                            _buildSleepTile(
+                              title: "10 Minutes",
+                              subtitle: "Stop music after 10 minutes",
+                              icon: Icons.bedtime_rounded,
+                              onTap: () async {
+                                await music.startSleepTimer(
+                                  const Duration(minutes: 10),
+                                );
+                                //if (context.mounted) Navigator.pop(context);
+                              },
+                            ),
+
+                            _buildSleepTile(
+                              title: "20 Minutes",
+                              subtitle: "Stop music after 20 minutes",
+                              icon: Icons.bedtime_rounded,
+                              onTap: () async {
+                                await music.startSleepTimer(
+                                  const Duration(minutes: 20),
+                                );
+                                //if (context.mounted) Navigator.pop(context);
+                              },
+                            ),
+
+                            _buildSleepTile(
+                              title: "30 Minutes",
+                              subtitle: "Stop music after 30 minutes",
+                              icon: Icons.bedtime_rounded,
+                              onTap: () async {
+                                await music.startSleepTimer(
+                                  const Duration(minutes: 30),
+                                );
+                                //if (context.mounted) Navigator.pop(context);
+                              },
+                            ),
+
+                            _buildSleepTile(
+                              title: "1 Hour",
+                              subtitle: "Stop music after 1 hour",
+                              icon: Icons.bedtime_rounded,
+                              onTap: () async {
+                                await music.startSleepTimer(
+                                  const Duration(hours: 1),
+                                );
+                                //if (context.mounted) Navigator.pop(context);
+                              },
+                            ),
+
+                            if (music.hasSleepTimer) ...[
+                              const Divider(color: Colors.white10),
+
+                              ListTile(
+                                leading: const Icon(
+                                  Icons.timer,
+                                  color: AppColors.primary,
+                                ),
+
+                                title: Text(
+                                  "Timer Running (${music.remainingSleepTimeLabel})",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+
+                                subtitle: const Text(
+                                  "Tap to stop sleep timer",
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+
+                                trailing: const Icon(
+                                  Icons.close,
+                                  color: Colors.redAccent,
+                                ),
+
+                                onTap: () async {
+                                  await music.cancelSleepTimer();
+
+                                  if (context.mounted) {
+                                    Navigator.pop(context);
+                                  }
+                                },
+                              ),
+                            ],
+
+                            const SizedBox(height: 20),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+Widget _buildSleepTile({
+  required String title,
+  required String subtitle,
+  required IconData icon,
+  required VoidCallback onTap,
+}) {
+  return ListTile(
+    leading: Icon(icon, color: AppColors.primary),
+    title: Text(
+      title,
+      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+    ),
+    subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey)),
+    trailing: const Icon(Icons.chevron_right, color: Colors.grey),
+    onTap: onTap,
   );
 }
