@@ -5,7 +5,6 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../core/storage/session_manager.dart';
 import '../../core/theme/app_theme.dart';
 import '../../core/utils/app_info.dart';
@@ -202,7 +201,7 @@ class _IntroScreenState extends State<IntroScreen> {
     }
   }
 
-  Future<void> signInWithApple(BuildContext context) async {
+  /*Future<void> signInWithApple(BuildContext context) async {
     try {
       final appleCredential = await SignInWithApple.getAppleIDCredential(
         scopes: [
@@ -261,7 +260,7 @@ class _IntroScreenState extends State<IntroScreen> {
         Navigator.of(context, rootNavigator: true).maybePop();
       }
     }
-  }
+  }*/
 
   Future<void> _saveFirstTimePreference() async {
     try {

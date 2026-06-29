@@ -24,8 +24,6 @@ dependencies:
   flutter_riverpod: ^2.6.1
   quickalert: ^1.1.0
   tutorial_coach_mark: ^1.2.11
-  easy_stepper: ^1.1.0
-  mobile_scanner: ^7.2.0
   carousel_slider: ^5.1.2
   dartz: ^0.10.1
   intl: ^0.20.2
@@ -43,7 +41,6 @@ dependencies:
   flutter_volume_controller: ^2.0.1
   shimmer: ^3.0.0
   scrollable_positioned_list: ^0.3.8
-  sign_in_with_apple: ^8.1.0
   just_audio_background: ^0.0.1-beta.17
   media_kit: ^1.2.6
   card_stack_swiper: ^1.1.2
