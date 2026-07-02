@@ -1,8 +1,8 @@
 import 'package:flutter/rendering.dart';
-import 'package:sawitify/core/network/api_client.dart';
-import 'package:sawitify/core/network/service_config.dart';
-import 'package:sawitify/data/model/artist_model.dart';
-import 'package:sawitify/data/model/track_model.dart';
+import 'package:Sawitify/core/network/api_client.dart';
+import 'package:Sawitify/core/network/service_config.dart';
+import 'package:Sawitify/data/model/artist_model.dart';
+import 'package:Sawitify/data/model/track_model.dart';
 
 part 'artist_header_repository.dart';
 

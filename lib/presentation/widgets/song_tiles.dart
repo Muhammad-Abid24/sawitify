@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:sawitify/data/model/track_model.dart';
-import 'package:sawitify/data/service/music_service/music_service.dart';
+import 'package:Sawitify/data/model/track_model.dart';
+import 'package:Sawitify/data/service/music_service/music_service.dart';
 
 class SongTiles extends StatelessWidget {
   final TrackModel track;

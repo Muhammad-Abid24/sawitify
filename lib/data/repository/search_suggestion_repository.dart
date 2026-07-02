@@ -1,5 +1,5 @@
-import 'package:sawitify/core/network/api_client.dart';
-import 'package:sawitify/core/network/service_config.dart';
+import 'package:Sawitify/core/network/api_client.dart';
+import 'package:Sawitify/core/network/service_config.dart';
 
 import '../model/search_suggestion_model.dart';
 

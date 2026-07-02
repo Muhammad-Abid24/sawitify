@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sawitify/data/model/album_model.dart';
+import 'package:Sawitify/data/model/album_model.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/response/home_response.dart';

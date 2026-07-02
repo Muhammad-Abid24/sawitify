@@ -1,14 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:sawitify/core/network/response/home_response.dart';
-import 'package:sawitify/data/model/artist_model.dart';
-import 'package:sawitify/data/repository/artist/artist_repository.dart';
-import 'package:sawitify/presentation/pages/album_page.dart';
-import 'package:sawitify/presentation/pages/playlist_page.dart';
-import 'package:sawitify/presentation/widgets/album_card.dart';
-import 'package:sawitify/presentation/widgets/artist_card.dart';
-import 'package:sawitify/presentation/widgets/shimmer_playlist.dart';
-import 'package:sawitify/presentation/widgets/song_tiles.dart';
+import 'package:Sawitify/data/model/artist_model.dart';
+import 'package:Sawitify/data/repository/artist/artist_repository.dart';
+import 'package:Sawitify/presentation/pages/album_page.dart';
+import 'package:Sawitify/presentation/pages/playlist_page.dart';
+import 'package:Sawitify/presentation/widgets/album_card.dart';
+import 'package:Sawitify/presentation/widgets/artist_card.dart';
+import 'package:Sawitify/presentation/widgets/shimmer_playlist.dart';
+import 'package:Sawitify/presentation/widgets/song_tiles.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/theme/app_theme.dart';

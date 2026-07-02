@@ -2,8 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:sawitify/presentation/states/new_music_service.dart';
-import 'package:sawitify/presentation/widgets/auto_marque.dart';
+import 'package:Sawitify/presentation/widgets/auto_marque.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../data/service/music_service/music_service.dart';

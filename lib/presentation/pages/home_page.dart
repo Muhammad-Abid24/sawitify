@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:card_stack_swiper/card_stack_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sawitify/core/theme/app_theme.dart';
+import 'package:Sawitify/core/theme/app_theme.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/network/response/home_response.dart';

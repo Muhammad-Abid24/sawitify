@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:sawitify/presentation/widgets/shimmer_playlist.dart';
+import 'package:Sawitify/presentation/widgets/shimmer_playlist.dart';
 
 import '../../core/network/api_client.dart';
 import '../../core/theme/app_theme.dart';

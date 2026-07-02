@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sawitify/core/theme/app_theme.dart';
+import 'package:Sawitify/core/theme/app_theme.dart';
 
 class HorizontalCard extends StatelessWidget {
   final double? width;
@@ -22,7 +22,13 @@ class HorizontalCard extends StatelessWidget {
     this.subTitleCard,
     this.colorSubTitleCard,
     this.image,
-    this.iconData, this.width, this.iconWidget, this.onTap, this.colorIcon, required this.borderRadiusCard, this.borderRadiusIcon
+    this.iconData,
+    this.width,
+    this.iconWidget,
+    this.onTap,
+    this.colorIcon,
+    required this.borderRadiusCard,
+    this.borderRadiusIcon,
   });
 
   @override
@@ -35,63 +41,67 @@ class HorizontalCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.background2.withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(borderRadiusCard),
-          border: Border.all(color:  AppColors.primary),
+          border: Border.all(color: AppColors.primary),
         ),
         child: Row(
-        children: [
-          if (iconData == null && iconWidget != null)
-            iconWidget!
-          else
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(borderRadiusIcon ?? 10),
-              ),
-              child: image != null
-                  ? ClipOval(
-                      child: Image(
-                        image: image!,
-                        width: 24,
-                        height: 24,
-                        fit: BoxFit.cover,
+          children: [
+            if (iconData == null && iconWidget != null)
+              iconWidget!
+            else
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(borderRadiusIcon ?? 10),
+                ),
+                child: image != null
+                    ? ClipOval(
+                        child: Image(
+                          image: image!,
+                          width: 24,
+                          height: 24,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Icon(
+                        iconData,
+                        color: colorIcon ?? Colors.white,
+                        size: 20,
                       ),
-                    )
-                  : Icon(iconData, color: colorIcon ?? Colors.white, size: 20),
-            ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  titleCard ?? "",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: colorTitleCard ?? Colors.white,
+              ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    titleCard ?? "",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: colorTitleCard ?? Colors.white,
+                    ),
                   ),
-                ),
-                Text(
-                  subTitleCard ?? "",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: colorSubTitleCard ?? Colors.white,
+                  Text(
+                    subTitleCard ?? "",
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorSubTitleCard ?? Colors.white,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          // Text(
-          //   amount,
-          //   style: TextStyle(
-          //     fontSize: 14,
-          //     fontWeight: FontWeight.w600,
-          //     color: amountColor,
-          //   ),
-          // ),
-        ],
-      ),
+            // Text(
+            //   amount,
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.w600,
+            //     color: amountColor,
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }

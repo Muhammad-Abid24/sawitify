@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:quickalert/models/quickalert_type.dart';
-import 'package:sawitify/presentation/pages/about_page.dart';
-import 'package:sawitify/presentation/pages/license_page.dart';
+import 'package:Sawitify/presentation/pages/about_page.dart';
+import 'package:Sawitify/presentation/pages/license_page.dart';
 import '../../core/storage/session_manager.dart';
 import '../../core/theme/app_theme.dart';
 import '../widgets/alert_dialog.dart';

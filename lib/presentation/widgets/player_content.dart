@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:sawitify/presentation/widgets/player_info.dart';
+import 'package:Sawitify/presentation/widgets/player_info.dart';
 
 import '../../core/theme/app_theme.dart';
 

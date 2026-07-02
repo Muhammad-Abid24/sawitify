@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:sawitify/core/network/remote/api_service.dart';
-import 'package:sawitify/core/network/service_config.dart';
+import 'package:Sawitify/core/network/remote/api_service.dart';
+import 'package:Sawitify/core/network/service_config.dart';
 
 import 'dio_client.dart';
 

@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:sawitify/core/network/interceptor/search_suggestion_interceptor.dart';
-import 'package:sawitify/core/network/service_config.dart';
+import 'package:Sawitify/core/network/interceptor/search_suggestion_interceptor.dart';
+import 'package:Sawitify/core/network/service_config.dart';
 
 import 'interceptor/base_interceptor.dart';
 import 'interceptor/error_interceptor.dart';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sawitify/presentation/pages/main_navigation_page.dart';
-import 'package:sawitify/presentation/pages/intro_page.dart';
+import 'package:Sawitify/presentation/pages/main_navigation_page.dart';
+import 'package:Sawitify/presentation/pages/intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/theme/app_theme.dart';
@@ -34,7 +34,6 @@ class _MainAppViewState extends State<MainAppView> {
       _isLoggedIn = isLogin;
       _isLoading = false;
     });
-
 
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -76,11 +75,7 @@ class _MainAppViewState extends State<MainAppView> {
 
   Widget _buildHome() {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
-        ),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_isLoggedIn) {

@@ -64,3 +64,9 @@ keystore.properties
 # Android signing keys
 *.jks
 *.keystore
+
+# Explicitly ignored based on request
+devtools_options.yaml
+sawitify.iml
+firebase.json
+android/build/reports/problems/problems-report.html
